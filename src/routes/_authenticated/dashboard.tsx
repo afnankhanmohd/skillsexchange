@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Bookmark, Briefcase, Inbox, Plus, Sparkles, UserCog } from "lucide-react";
 
-import { CardSkeletonGrid } from "@/components/CardSkeletonGrid";
+import { CardSkeletonGrid } from "@/components/CardSkeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { JobCard } from "@/components/JobCard";
 import { SkillCard } from "@/components/SkillCard";

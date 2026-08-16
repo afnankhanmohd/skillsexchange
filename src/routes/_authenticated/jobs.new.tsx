@@ -39,7 +39,7 @@ export const Route = createFileRoute("/_authenticated/jobs/new")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: NewJobPage;
+  component: NewJobPage,
 });
 
 const schema = z.object({

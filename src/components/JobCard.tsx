@@ -17,8 +17,8 @@ export function JobCard({
   onToggleSave,
 }: {
   job: Job;
-  isSaved?: boolean;
-  onToggleSave?: (job: Job) => void;
+  isSaved?: boolean | undefined;
+  onToggleSave?: ((job: Job) => void) | undefined;
 }) {
   return (
     <article className="card-surface group flex h-full flex-col gap-4 p-5 transition-shadow hover:shadow-[var(--shadow-lift)]">

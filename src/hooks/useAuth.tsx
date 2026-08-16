@@ -3,6 +3,7 @@ import type { Session, User } from "@supabase/supabase-js";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
+import { PROFILE_SELECT } from "@/lib/api";
 import type { Profile } from "@/lib/types";
 
 type AuthContextValue = {

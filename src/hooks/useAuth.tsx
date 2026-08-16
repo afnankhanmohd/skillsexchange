@@ -41,12 +41,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select(PROFILE_SELECT)
         .eq("id", userId!)
         .maybeSingle();
       if (error) throw error;
-      return data as Profile | null;
+      return (data ?? null) as Profile | null;
     },
+
   });
 
   const value = useMemo<AuthContextValue>(

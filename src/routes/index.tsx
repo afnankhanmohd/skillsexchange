@@ -258,7 +258,7 @@ function LandingPage() {
               <figcaption className="mt-4 text-sm font-semibold">
                 {testimonial.name}
                 <span className="block text-xs font-normal text-muted-foreground">
-                  {testimonial.role}
+                  {testimonial.college}
                 </span>
               </figcaption>
             </figure>

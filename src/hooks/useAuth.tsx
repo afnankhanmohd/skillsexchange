@@ -3,6 +3,7 @@ import type { Session, User } from "@supabase/supabase-js";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
+import { PROFILE_SELECT } from "@/lib/api";
 import type { Profile } from "@/lib/types";
 
 type AuthContextValue = {
@@ -41,12 +42,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select(PROFILE_SELECT)
         .eq("id", userId!)
         .maybeSingle();
       if (error) throw error;
-      return data as Profile | null;
+      return (data ?? null) as Profile | null;
     },
+
   });
 
   const value = useMemo<AuthContextValue>(

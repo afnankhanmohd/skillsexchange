@@ -12,8 +12,8 @@ export function SkillCard({
   onToggleSave,
 }: {
   skill: Skill;
-  isSaved?: boolean;
-  onToggleSave?: (skill: Skill) => void;
+  isSaved?: boolean | undefined;
+  onToggleSave?: ((skill: Skill) => void) | undefined;
 }) {
   return (
     <article className="card-surface group flex h-full flex-col gap-4 p-5 transition-shadow hover:shadow-[var(--shadow-lift)]">

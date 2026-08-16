@@ -172,23 +172,23 @@ function AuthPage() {
             <>
               <div className="space-y-1.5">
                 <Label htmlFor="fullName">Full name</Label>
-                <Input id="fullName" name="fullName" autoComplete="name" aria-invalid={!!errors.fullName} />
-                {errors.fullName ? (
-                  <p className="text-xs text-destructive">{errors.fullName}</p>
+                <Input id="fullName" name="fullName" autoComplete="name" aria-invalid={!!errors['fullName']} />
+                {errors['fullName'] ? (
+                  <p className="text-xs text-destructive">{errors['fullName']}</p>
                 ) : null}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="college">College / university</Label>
-                <Input id="college" name="college" autoComplete="organization" aria-invalid={!!errors.college} />
-                {errors.college ? <p className="text-xs text-destructive">{errors.college}</p> : null}
+                <Input id="college" name="college" autoComplete="organization" aria-invalid={!!errors['college']} />
+                {errors['college'] ? <p className="text-xs text-destructive">{errors['college']}</p> : null}
               </div>
             </>
           ) : null}
 
           <div className="space-y-1.5">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" autoComplete="email" aria-invalid={!!errors.email} />
-            {errors.email ? <p className="text-xs text-destructive">{errors.email}</p> : null}
+            <Input id="email" name="email" type="email" autoComplete="email" aria-invalid={!!errors['email']} />
+            {errors['email'] ? <p className="text-xs text-destructive">{errors['email']}</p> : null}
           </div>
 
           {mode !== "forgot" ? (
@@ -199,9 +199,9 @@ function AuthPage() {
                 name="password"
                 type="password"
                 autoComplete={mode === "signup" ? "new-password" : "current-password"}
-                aria-invalid={!!errors.password}
+                aria-invalid={!!errors['password']}
               />
-              {errors.password ? <p className="text-xs text-destructive">{errors.password}</p> : null}
+              {errors['password'] ? <p className="text-xs text-destructive">{errors['password']}</p> : null}
             </div>
           ) : null}
 

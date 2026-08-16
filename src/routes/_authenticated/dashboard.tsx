@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Bookmark, Briefcase, Inbox, Plus, Sparkles, UserCog } from "lucide-react";
 
-import { CardSkeleton } from "@/components/CardSkeleton";
+import { CardSkeletonGrid } from "@/components/CardSkeletonGrid";
 import { EmptyState } from "@/components/EmptyState";
 import { JobCard } from "@/components/JobCard";
 import { SkillCard } from "@/components/SkillCard";
@@ -124,7 +124,7 @@ function DashboardPage() {
 
         <TabsContent value="skills" className="mt-5">
           {skillsQuery.isLoading ? (
-            <CardSkeleton count={3} />
+            <CardSkeletonGrid count={3} />
           ) : skillsQuery.data?.length ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {skillsQuery.data.map((skill) => (
@@ -147,7 +147,7 @@ function DashboardPage() {
 
         <TabsContent value="jobs" className="mt-5">
           {jobsQuery.isLoading ? (
-            <CardSkeleton count={3} />
+            <CardSkeletonGrid count={3} />
           ) : jobsQuery.data?.length ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {jobsQuery.data.map((job) => (
@@ -170,7 +170,7 @@ function DashboardPage() {
 
         <TabsContent value="saved" className="mt-5 space-y-6">
           {savedQuery.isLoading ? (
-            <CardSkeleton count={3} />
+            <CardSkeletonGrid count={3} />
           ) : savedQuery.data && (savedQuery.data.skills.length || savedQuery.data.jobs.length) ? (
             <>
               {savedQuery.data.skills.length ? (

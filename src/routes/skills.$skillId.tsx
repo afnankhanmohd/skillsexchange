@@ -34,6 +34,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchSavedItems, fetchSkill, toggleSaved } from "@/lib/api";
 import { sampleSkills } from "@/lib/sample-data";
+import type { Skill } from "@/lib/types";
 
 export const Route = createFileRoute("/skills/$skillId")({
   loader: async ({ params }) => {

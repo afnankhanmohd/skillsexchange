@@ -23,7 +23,7 @@ function person(id: string, full_name: string, college: string, location: string
   };
 }
 
-export const samplePeople = [
+export const samplePeople: PublicProfile[] = [
   person("sample-p1", "Aarav Menon", "IIT Madras", "Chennai, IN"),
   person("sample-p2", "Sara Iqbal", "Delhi University", "New Delhi, IN"),
   person("sample-p3", "Tanvi Rao", "Christ University", "Bengaluru, IN"),
@@ -58,10 +58,12 @@ function skill(
   };
 }
 
+const p = (i: number): PublicProfile => samplePeople[i]!;
+
 export const sampleSkills: Skill[] = [
   skill(
     "sample-s1",
-    samplePeople[0],
+    p(0),
     {
       title: "React Frontend Developer",
       category: "Web Development",
@@ -75,7 +77,7 @@ export const sampleSkills: Skill[] = [
   ),
   skill(
     "sample-s2",
-    samplePeople[1],
+    p(1),
     {
       title: "Figma UI Designer",
       category: "UI/UX Design",
@@ -89,7 +91,7 @@ export const sampleSkills: Skill[] = [
   ),
   skill(
     "sample-s3",
-    samplePeople[2],
+    p(2),
     {
       title: "Video Editor for Reels",
       category: "Video Editing",
@@ -103,7 +105,7 @@ export const sampleSkills: Skill[] = [
   ),
   skill(
     "sample-s4",
-    samplePeople[3],
+    p(3),
     {
       title: "English Communication Tutor",
       category: "Tutoring",
@@ -116,7 +118,7 @@ export const sampleSkills: Skill[] = [
   ),
   skill(
     "sample-s5",
-    samplePeople[4],
+    p(4),
     {
       title: "Canva Social Media Designer",
       category: "Graphic Design",
@@ -130,7 +132,7 @@ export const sampleSkills: Skill[] = [
   ),
   skill(
     "sample-s6",
-    samplePeople[5],
+    p(5),
     {
       title: "Python Data Analysis",
       category: "Data Analysis",
@@ -175,7 +177,7 @@ function job(
 export const sampleJobs: Job[] = [
   job(
     "sample-j1",
-    samplePeople[1],
+    p(1),
     {
       title: "Build a Landing Page for Our Student Club",
       organization: "Coding Club, Delhi University",
@@ -190,7 +192,7 @@ export const sampleJobs: Job[] = [
   ),
   job(
     "sample-j2",
-    samplePeople[2],
+    p(2),
     {
       title: "Need a Video Editor for a College Event",
       organization: "Sparkfest 2026",
@@ -206,7 +208,7 @@ export const sampleJobs: Job[] = [
   ),
   job(
     "sample-j3",
-    samplePeople[3],
+    p(3),
     {
       title: "Looking for a Presentation Designer",
       organization: "E-Cell VIT",
@@ -221,7 +223,7 @@ export const sampleJobs: Job[] = [
   ),
   job(
     "sample-j4",
-    samplePeople[4],
+    p(4),
     {
       title: "Content Writer for Campus Newsletter",
       organization: "NIT Trichy Media Cell",
@@ -236,7 +238,7 @@ export const sampleJobs: Job[] = [
   ),
   job(
     "sample-j5",
-    samplePeople[5],
+    p(5),
     {
       title: "Data Analysis Intern for Survey Project",
       organization: "Research Group, BITS Pilani",

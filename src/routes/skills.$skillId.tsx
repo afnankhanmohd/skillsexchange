@@ -36,20 +36,43 @@ import { fetchSavedItems, fetchSkill, toggleSaved } from "@/lib/api";
 import { sampleSkills } from "@/lib/sample-data";
 
 export const Route = createFileRoute("/skills/$skillId")({
-  head: () => ({
-    meta: [
-      { title: "Skill details — skillSExhange" },
-      {
-        name: "description",
-        content: "See what this student can help with, how they prefer to exchange, and send an inquiry.",
-      },
-      { property: "og:title", content: "Skill details — skillSExhange" },
-      {
-        property: "og:description",
-        content: "Student skill listing on the skillSExhange marketplace.",
-      },
-    ],
-  }),
+  loader: async ({ params }) => {
+    let skill: Skill | null = null;
+    try {
+      skill = await fetchSkill(params.skillId);
+    } catch {
+      skill = null;
+    }
+    if (!skill) skill = sampleSkills.find((s) => s.id === params.skillId) ?? null;
+    if (!skill) return { title: null, description: null, author: null, category: null };
+    return {
+      title: skill.title,
+      description: skill.description,
+      author: skill.profile?.full_name ?? null,
+      category: skill.category,
+    };
+  },
+  head: ({ params, loaderData }) => {
+    const title = loaderData?.title
+      ? `${loaderData.title}${loaderData.author ? ` by ${loaderData.author}` : ""} — skillSExhange`
+      : "Skill details — skillSExhange";
+    const summary = loaderData?.description
+      ? `${loaderData.category ? `${loaderData.category}: ` : ""}${loaderData.description}`.slice(0, 155)
+      : "See what this student can help with, how they prefer to exchange, and send an inquiry.";
+    const url = `https://skillsexchange.lovable.app/skills/${params.skillId}`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: summary },
+        { property: "og:title", content: title },
+        { property: "og:description", content: summary },
+        { property: "og:type", content: "article" },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: "summary" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: SkillDetailPage,
 });
 

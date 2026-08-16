@@ -121,11 +121,20 @@ export async function toggleSaved(
   if (error) throw error;
 }
 
+// `email` is intentionally excluded: it is not readable through the Data API.
+export const PROFILE_SELECT =
+  "id, full_name, college, location, bio, avatar_url, portfolio_url, linkedin_url, availability, role, created_at, updated_at";
+
 export async function fetchProfile(id: string) {
-  const { data, error } = await supabase.from("profiles").select("*").eq("id", id).maybeSingle();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select(PROFILE_SELECT)
+    .eq("id", id)
+    .maybeSingle();
   if (error) throw error;
   return data;
 }
+
 
 export async function fetchInquiries(userId: string) {
   const { data, error } = await supabase

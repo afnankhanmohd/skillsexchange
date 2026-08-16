@@ -165,28 +165,28 @@ function JobDetailPage() {
               {job.organization || job.profile?.full_name || "Student poster"}
             </p>
           </div>
-          <Chip variant={job.status === "open" ? "accent" : "muted"}>{job.status}</Chip>
+          <Chip tone={job.status === "open" ? "accent" : "neutral"}>{job.status}</Chip>
         </div>
 
         <div className="mt-4 flex flex-wrap gap-2">
           <Chip>{job.category}</Chip>
           {job.compensation_type ? (
-            <Chip variant="accent">
+            <Chip tone="accent">
               <Wallet className="size-3.5" /> {job.compensation_type}
             </Chip>
           ) : null}
           {job.work_mode ? (
-            <Chip variant="muted">
+            <Chip tone="neutral">
               <Globe className="size-3.5" /> {job.work_mode}
             </Chip>
           ) : null}
           {job.location ? (
-            <Chip variant="muted">
+            <Chip tone="neutral">
               <MapPin className="size-3.5" /> {job.location}
             </Chip>
           ) : null}
           {job.deadline ? (
-            <Chip variant="muted">
+            <Chip tone="neutral">
               <CalendarClock className="size-3.5" /> Apply by{" "}
               {new Date(job.deadline).toLocaleDateString()}
             </Chip>
@@ -209,7 +209,7 @@ function JobDetailPage() {
             <h2 className="text-sm font-semibold">Required skills</h2>
             <div className="mt-2 flex flex-wrap gap-2">
               {job.required_skills.map((skill) => (
-                <Chip key={skill} variant="muted">
+                <Chip key={skill} tone="neutral">
                   {skill}
                 </Chip>
               ))}

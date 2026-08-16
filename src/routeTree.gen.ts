@@ -16,6 +16,7 @@ import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
+import { Route as JobsJobIdRouteImport } from './routes/jobs.$jobId'
 import { Route as SkillsIndexRouteImport } from './routes/skills.index'
 import { Route as SkillsSkillIdRouteImport } from './routes/skills.$skillId'
 
@@ -54,6 +55,11 @@ const JobsIndexRoute = JobsIndexRouteImport.update({
   path: '/jobs/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const JobsJobIdRoute = JobsJobIdRouteImport.update({
+  id: '/jobs/$jobId',
+  path: '/jobs/$jobId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SkillsIndexRoute = SkillsIndexRouteImport.update({
   id: '/skills/',
   path: '/skills/',
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/how-it-works': typeof HowItWorksRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/jobs/$jobId': typeof JobsJobIdRoute
   '/skills/$skillId': typeof SkillsSkillIdRoute
   '/jobs/': typeof JobsIndexRoute
   '/skills/': typeof SkillsIndexRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/how-it-works': typeof HowItWorksRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/jobs/$jobId': typeof JobsJobIdRoute
   '/skills/$skillId': typeof SkillsSkillIdRoute
   '/jobs': typeof JobsIndexRoute
   '/skills': typeof SkillsIndexRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/how-it-works': typeof HowItWorksRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/jobs/$jobId': typeof JobsJobIdRoute
   '/skills/$skillId': typeof SkillsSkillIdRoute
   '/jobs/': typeof JobsIndexRoute
   '/skills/': typeof SkillsIndexRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/how-it-works'
     | '/privacy'
     | '/terms'
+    | '/jobs/$jobId'
     | '/skills/$skillId'
     | '/jobs/'
     | '/skills/'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/how-it-works'
     | '/privacy'
     | '/terms'
+    | '/jobs/$jobId'
     | '/skills/$skillId'
     | '/jobs'
     | '/skills'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/how-it-works'
     | '/privacy'
     | '/terms'
+    | '/jobs/$jobId'
     | '/skills/$skillId'
     | '/jobs/'
     | '/skills/'
@@ -142,6 +154,7 @@ export interface RootRouteChildren {
   HowItWorksRoute: typeof HowItWorksRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
+  JobsJobIdRoute: typeof JobsJobIdRoute
   SkillsSkillIdRoute: typeof SkillsSkillIdRoute
   JobsIndexRoute: typeof JobsIndexRoute
   SkillsIndexRoute: typeof SkillsIndexRoute
@@ -198,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JobsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/jobs/$jobId': {
+      id: '/jobs/$jobId'
+      path: '/jobs/$jobId'
+      fullPath: '/jobs/$jobId'
+      preLoaderRoute: typeof JobsJobIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/skills/': {
       id: '/skills/'
       path: '/skills'
@@ -222,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   HowItWorksRoute: HowItWorksRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
+  JobsJobIdRoute: JobsJobIdRoute,
   SkillsSkillIdRoute: SkillsSkillIdRoute,
   JobsIndexRoute: JobsIndexRoute,
   SkillsIndexRoute: SkillsIndexRoute,

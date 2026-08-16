@@ -14,13 +14,361 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      applications: {
+        Row: {
+          applicant_id: string
+          created_at: string
+          id: string
+          job_id: string
+          message: string | null
+          status: string
+        }
+        Insert: {
+          applicant_id: string
+          created_at?: string
+          id?: string
+          job_id: string
+          message?: string | null
+          status?: string
+        }
+        Update: {
+          applicant_id?: string
+          created_at?: string
+          id?: string
+          job_id?: string
+          message?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_applicant_id_fkey"
+            columns: ["applicant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_messages: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          name: string
+          phone_number: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          name: string
+          phone_number: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          name?: string
+          phone_number?: string
+        }
+        Relationships: []
+      }
+      inquiries: {
+        Row: {
+          created_at: string
+          id: string
+          job_id: string | null
+          message: string
+          recipient_id: string
+          sender_id: string
+          skill_id: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          message: string
+          recipient_id: string
+          sender_id: string
+          skill_id?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          message?: string
+          recipient_id?: string
+          sender_id?: string
+          skill_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inquiries_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inquiries_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inquiries_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inquiries_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jobs: {
+        Row: {
+          category: string
+          compensation_details: string | null
+          compensation_type: string | null
+          created_at: string
+          deadline: string | null
+          description: string
+          id: string
+          location: string | null
+          organization: string | null
+          required_skills: string[]
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+          work_mode: string | null
+        }
+        Insert: {
+          category: string
+          compensation_details?: string | null
+          compensation_type?: string | null
+          created_at?: string
+          deadline?: string | null
+          description: string
+          id?: string
+          location?: string | null
+          organization?: string | null
+          required_skills?: string[]
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          work_mode?: string | null
+        }
+        Update: {
+          category?: string
+          compensation_details?: string | null
+          compensation_type?: string | null
+          created_at?: string
+          deadline?: string | null
+          description?: string
+          id?: string
+          location?: string | null
+          organization?: string | null
+          required_skills?: string[]
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          work_mode?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          availability: string | null
+          avatar_url: string | null
+          bio: string | null
+          college: string | null
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          linkedin_url: string | null
+          location: string | null
+          portfolio_url: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          availability?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          college?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id: string
+          linkedin_url?: string | null
+          location?: string | null
+          portfolio_url?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          availability?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          college?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          linkedin_url?: string | null
+          location?: string | null
+          portfolio_url?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      saved_items: {
+        Row: {
+          created_at: string
+          id: string
+          item_type: string
+          job_id: string | null
+          skill_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_type: string
+          job_id?: string | null
+          skill_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_type?: string
+          job_id?: string | null
+          skill_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_items_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_items_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_items_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      skills: {
+        Row: {
+          availability: string | null
+          category: string
+          created_at: string
+          description: string
+          exchange_preference: string | null
+          experience_level: string | null
+          help_offered: string | null
+          id: string
+          is_active: boolean
+          location: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          work_mode: string | null
+        }
+        Insert: {
+          availability?: string | null
+          category: string
+          created_at?: string
+          description: string
+          exchange_preference?: string | null
+          experience_level?: string | null
+          help_offered?: string | null
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          work_mode?: string | null
+        }
+        Update: {
+          availability?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          exchange_preference?: string | null
+          experience_level?: string | null
+          help_offered?: string | null
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          work_mode?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skills_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

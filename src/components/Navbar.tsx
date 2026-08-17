@@ -53,13 +53,8 @@ export function Navbar() {
         aria-label="Main navigation"
         className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4"
       >
-        <Link to="/" className="flex items-center gap-2 font-bold tracking-tight">
-          <span className="flex size-8 items-center justify-center rounded-xl bg-hero-gradient text-sm font-black text-primary-foreground">
-            sS
-          </span>
-          <span className="text-base">
-            skill<span className="text-primary">SExhange</span>
-          </span>
+        <Link to="/" className="flex items-center" aria-label="skillSExhange home">
+          <img src={logoAsset.url} alt="skillSExhange logo" className="h-9 w-auto" />
         </Link>
 
         <ul className="hidden items-center gap-1 md:flex">

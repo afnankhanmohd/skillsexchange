@@ -9,7 +9,7 @@ export function Footer() {
     <footer className="mt-16 border-t border-border bg-card">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-3">
-          <img src={logoAsset.url} alt="skillSExhange logo" className="h-10 w-auto" />
+          <img src={logoAsset.url} alt="skillSExhange logo" className="h-10 w-auto rounded-lg dark:bg-white/92 dark:px-2 dark:py-1" />
           <p className="text-sm text-muted-foreground">
             A peer-to-peer skill and opportunity exchange built for students.
           </p>

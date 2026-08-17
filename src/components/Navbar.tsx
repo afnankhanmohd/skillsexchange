@@ -56,7 +56,7 @@ export function Navbar() {
         className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4"
       >
         <Link to="/" className="flex items-center" aria-label="skillSExhange home">
-          <img src={logoAsset.url} alt="skillSExhange logo" className="h-9 w-auto" />
+          <img src={logoAsset.url} alt="skillSExhange logo" className="h-9 w-auto rounded-lg dark:bg-white/92 dark:px-2 dark:py-1" />
         </Link>
 
         <ul className="hidden items-center gap-1 md:flex">

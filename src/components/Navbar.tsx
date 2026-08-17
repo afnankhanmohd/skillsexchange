@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 
 import logoAsset from "@/assets/logo.svg.asset.json";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -73,6 +74,7 @@ export function Navbar() {
         </ul>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           {user ? (
             <>
               <Button asChild size="sm" className="hidden md:inline-flex">

@@ -15,6 +15,7 @@ import { Footer } from "@/components/Footer";
 import { MobileTabBar, Navbar } from "@/components/Navbar";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ThemeProvider } from "@/hooks/useTheme";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -107,6 +108,11 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("skillsexhange-theme")||"system";var d=t==="dark"||(t==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.style.colorScheme=d?"dark":"light";}catch(e){}})();`,
+          }}
+        />
       </head>
       <body>
         {children}
@@ -137,6 +143,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
       <AuthProvider>
         <AuthEvents />
         <div className="flex min-h-screen flex-col bg-background">
@@ -150,6 +157,7 @@ function RootComponent() {
         </div>
         <Toaster position="top-center" richColors />
       </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

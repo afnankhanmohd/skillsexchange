@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 
 import logoAsset from "@/assets/logo.svg.asset.json";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,7 +56,7 @@ export function Navbar() {
         className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4"
       >
         <Link to="/" className="flex items-center" aria-label="skillSExhange home">
-          <img src={logoAsset.url} alt="skillSExhange logo" className="h-9 w-auto" />
+          <img src={logoAsset.url} alt="skillSExhange logo" className="h-9 w-auto rounded-lg dark:bg-white dark:px-2 dark:py-1" />
         </Link>
 
         <ul className="hidden items-center gap-1 md:flex">
@@ -73,6 +74,7 @@ export function Navbar() {
         </ul>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           {user ? (
             <>
               <Button asChild size="sm" className="hidden md:inline-flex">

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+import logoAsset from "@/assets/logo.svg.asset.json";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
 import {

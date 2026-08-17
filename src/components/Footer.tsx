@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Mail } from "lucide-react";
 
+import logoAsset from "@/assets/logo.svg.asset.json";
 import { SOCIAL_LINKS, SUPPORT_EMAIL } from "@/lib/constants";
 
 export function Footer() {
@@ -8,12 +9,7 @@ export function Footer() {
     <footer className="mt-16 border-t border-border bg-card">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-3">
-          <p className="flex items-center gap-2 font-bold">
-            <span className="flex size-8 items-center justify-center rounded-xl bg-hero-gradient text-sm font-black text-primary-foreground">
-              sS
-            </span>
-            skill<span className="-ml-1 text-primary">SExhange</span>
-          </p>
+          <img src={logoAsset.url} alt="skillSExhange logo" className="h-10 w-auto" />
           <p className="text-sm text-muted-foreground">
             A peer-to-peer skill and opportunity exchange built for students.
           </p>

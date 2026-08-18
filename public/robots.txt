@@ -12,3 +12,6 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://skillsexchange.lovable.app/sitemap.xml
+

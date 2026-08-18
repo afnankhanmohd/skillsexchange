@@ -15,6 +15,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { Chip } from "@/components/Chip";
+import { ContactDetails } from "@/components/ContactDetails";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -228,6 +229,18 @@ function JobDetailPage() {
             <p className="text-muted-foreground">{job.profile?.college ?? "Student community"}</p>
           </div>
         </div>
+
+        {!job.isSample ? (
+          <div className="mt-5 max-w-md">
+            <ContactDetails
+              userId={job.user_id}
+              name={job.profile?.full_name ?? "this student"}
+              subject={`skillSExhange: ${job.title}`}
+            />
+          </div>
+        ) : null}
+
+
 
         <div className="mt-6 flex flex-wrap gap-3">
           {user ? (

@@ -213,12 +213,14 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           college: string | null
+          contact_visible: boolean
           created_at: string
           email: string | null
           full_name: string
           id: string
           linkedin_url: string | null
           location: string | null
+          phone: string | null
           portfolio_url: string | null
           role: string
           updated_at: string
@@ -228,12 +230,14 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           college?: string | null
+          contact_visible?: boolean
           created_at?: string
           email?: string | null
           full_name?: string
           id: string
           linkedin_url?: string | null
           location?: string | null
+          phone?: string | null
           portfolio_url?: string | null
           role?: string
           updated_at?: string
@@ -243,12 +247,14 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           college?: string | null
+          contact_visible?: boolean
           created_at?: string
           email?: string | null
           full_name?: string
           id?: string
           linkedin_url?: string | null
           location?: string | null
+          phone?: string | null
           portfolio_url?: string | null
           role?: string
           updated_at?: string
@@ -368,7 +374,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_contact: {
+        Args: { _user_id: string }
+        Returns: {
+          contact_visible: boolean
+          email: string
+          phone: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

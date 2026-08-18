@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Loader2, Upload } from "lucide-react";
 import { useRef, useState } from "react";
@@ -13,7 +13,9 @@ import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchUserContact } from "@/lib/contact";
 import { profileCompletion } from "@/lib/types";
+import { Switch } from "@/components/ui/switch";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
@@ -44,6 +46,15 @@ const profileSchema = z.object({
   availability: z.string().trim().max(120).optional(),
   portfolio_url: z.union([z.string().trim().url("Enter a valid URL"), z.literal("")]),
   linkedin_url: z.union([z.string().trim().url("Enter a valid URL"), z.literal("")]),
+  email: z.union([z.string().trim().email("Enter a valid email"), z.literal("")]),
+  phone: z.union([
+    z
+      .string()
+      .trim()
+      .regex(/^[+]?[\d\s()-]{7,20}$/, "Enter a valid phone number"),
+    z.literal(""),
+  ]),
+  contact_visible: z.boolean(),
 });
 
 function EditProfilePage() {
@@ -52,6 +63,17 @@ function EditProfilePage() {
   const fileInput = useRef<HTMLInputElement>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState(false);
+  const [contactVisible, setContactVisible] = useState(true);
+
+  const contactQuery = useQuery({
+    queryKey: ["user-contact", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const contact = await fetchUserContact(user!.id);
+      setContactVisible(contact?.contactVisible ?? true);
+      return contact;
+    },
+  });
 
   const saveMutation = useMutation({
     mutationFn: async (values: z.infer<typeof profileSchema>) => {
@@ -66,12 +88,16 @@ function EditProfilePage() {
           availability: values.availability || null,
           portfolio_url: values.portfolio_url || null,
           linkedin_url: values.linkedin_url || null,
+          email: values.email || null,
+          phone: values.phone || null,
+          contact_visible: values.contact_visible,
         })
         .eq("id", user.id);
       if (error) throw error;
     },
     onSuccess: () => {
       refreshProfile();
+      void queryClient.invalidateQueries({ queryKey: ["user-contact"] });
       toast.success("Profile updated");
     },
     onError: (error) =>
@@ -91,6 +117,9 @@ function EditProfilePage() {
       availability: form.get("availability") ?? "",
       portfolio_url: form.get("portfolio_url") ?? "",
       linkedin_url: form.get("linkedin_url") ?? "",
+      email: form.get("email") ?? "",
+      phone: form.get("phone") ?? "",
+      contact_visible: contactVisible,
     });
     if (!parsed.success) {
       setErrors(
@@ -250,6 +279,52 @@ function EditProfilePage() {
             ) : null}
           </div>
         </div>
+        <div className="rounded-xl border border-border p-4">
+          <p className="text-sm font-semibold">Contact details</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Signed-in students can reach you directly on these when sharing is on. Guests never see
+            them.
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                defaultValue={contactQuery.data?.email ?? ""}
+                placeholder="you@college.edu"
+              />
+              {errors["email"] ? (
+                <p className="text-xs text-destructive">{errors["email"]}</p>
+              ) : null}
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="phone">Mobile number</Label>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                defaultValue={contactQuery.data?.phone ?? ""}
+                placeholder="+91 98765 43210"
+              />
+              {errors["phone"] ? (
+                <p className="text-xs text-destructive">{errors["phone"]}</p>
+              ) : null}
+            </div>
+          </div>
+          <div className="mt-4 flex items-center justify-between gap-4">
+            <Label htmlFor="contact_visible" className="text-sm font-normal">
+              Show my email and mobile number to signed-in students
+            </Label>
+            <Switch
+              id="contact_visible"
+              checked={contactVisible}
+              onCheckedChange={setContactVisible}
+            />
+          </div>
+        </div>
+
         <Button type="submit" disabled={saveMutation.isPending}>
           {saveMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
           Save changes

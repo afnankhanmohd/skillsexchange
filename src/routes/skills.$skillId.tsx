@@ -16,6 +16,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { Chip } from "@/components/Chip";
+import { ContactDetails } from "@/components/ContactDetails";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -232,6 +233,18 @@ function SkillDetailPage() {
               </a>
             ) : null}
           </div>
+
+          {!skill.isSample ? (
+            <div className="mt-5">
+              <ContactDetails
+                userId={skill.user_id}
+                name={skill.profile?.full_name ?? "this student"}
+                subject={`skillSExhange: ${skill.title}`}
+              />
+            </div>
+          ) : null}
+
+
 
           <div className="mt-6 space-y-2">
             {user && !skill.isSample ? (

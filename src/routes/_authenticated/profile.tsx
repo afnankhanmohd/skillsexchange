@@ -64,6 +64,8 @@ function EditProfilePage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState(false);
   const [contactVisible, setContactVisible] = useState(true);
+  const [countryCode, setCountryCode] = useState(DEFAULT_COUNTRY_CODE);
+  const [localNumber, setLocalNumber] = useState("");
 
   const contactQuery = useQuery({
     queryKey: ["user-contact", user?.id],
@@ -71,6 +73,9 @@ function EditProfilePage() {
     queryFn: async () => {
       const contact = await fetchUserContact(user!.id);
       setContactVisible(contact?.contactVisible ?? true);
+      const parts = splitPhone(contact?.phone ?? "");
+      setCountryCode(parts.countryCode);
+      setLocalNumber(parts.number);
       return contact;
     },
   });

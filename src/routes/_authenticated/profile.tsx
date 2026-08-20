@@ -14,6 +14,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchUserContact } from "@/lib/contact";
+import {
+  COUNTRY_CODES,
+  DEFAULT_COUNTRY_CODE,
+  joinPhone,
+  splitPhone,
+  validateLocalNumber,
+} from "@/lib/phone";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { profileCompletion } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 

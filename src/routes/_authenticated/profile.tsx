@@ -14,6 +14,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchUserContact } from "@/lib/contact";
+import {
+  COUNTRY_CODES,
+  DEFAULT_COUNTRY_CODE,
+  joinPhone,
+  splitPhone,
+  validateLocalNumber,
+} from "@/lib/phone";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { profileCompletion } from "@/lib/types";
 import { Switch } from "@/components/ui/switch";
 
@@ -51,7 +65,7 @@ const profileSchema = z.object({
     z
       .string()
       .trim()
-      .regex(/^[+]?[\d\s()-]{7,20}$/, "Enter a valid phone number"),
+      .regex(/^\+\d{6,17}$/, "Enter a valid mobile number with country code"),
     z.literal(""),
   ]),
   contact_visible: z.boolean(),
@@ -64,6 +78,8 @@ function EditProfilePage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState(false);
   const [contactVisible, setContactVisible] = useState(true);
+  const [countryCode, setCountryCode] = useState(DEFAULT_COUNTRY_CODE);
+  const [localNumber, setLocalNumber] = useState("");
 
   const contactQuery = useQuery({
     queryKey: ["user-contact", user?.id],
@@ -71,6 +87,9 @@ function EditProfilePage() {
     queryFn: async () => {
       const contact = await fetchUserContact(user!.id);
       setContactVisible(contact?.contactVisible ?? true);
+      const parts = splitPhone(contact?.phone ?? "");
+      setCountryCode(parts.countryCode);
+      setLocalNumber(parts.number);
       return contact;
     },
   });
@@ -118,15 +137,19 @@ function EditProfilePage() {
       portfolio_url: form.get("portfolio_url") ?? "",
       linkedin_url: form.get("linkedin_url") ?? "",
       email: form.get("email") ?? "",
-      phone: form.get("phone") ?? "",
+      phone: joinPhone(countryCode, localNumber),
       contact_visible: contactVisible,
     });
-    if (!parsed.success) {
-      setErrors(
-        Object.fromEntries(
-          parsed.error.issues.map((issue) => [String(issue.path[0]), issue.message]),
-        ),
-      );
+    const phoneError = validateLocalNumber(localNumber);
+    if (!parsed.success || phoneError) {
+      setErrors({
+        ...(parsed.success
+          ? {}
+          : Object.fromEntries(
+              parsed.error.issues.map((issue) => [String(issue.path[0]), issue.message]),
+            )),
+        ...(phoneError ? { phone: phoneError } : {}),
+      });
       return;
     }
     setErrors({});
@@ -301,16 +324,41 @@ function EditProfilePage() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="phone">Mobile number</Label>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                defaultValue={contactQuery.data?.phone ?? ""}
-                placeholder="+91 98765 43210"
-              />
+              <div className="flex gap-2">
+                <Select value={countryCode} onValueChange={setCountryCode}>
+                  <SelectTrigger className="w-[7.5rem] shrink-0" aria-label="Country code">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COUNTRY_CODES.map((entry) => (
+                      <SelectItem key={entry.code} value={entry.code}>
+                        {entry.flag} {entry.code}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel-national"
+                  value={localNumber}
+                  onChange={(event) => {
+                    setLocalNumber(event.target.value.replace(/[^\d\s-]/g, ""));
+                    setErrors((prev) => ({ ...prev, phone: "" }));
+                  }}
+                  placeholder="98765 43210"
+                />
+              </div>
               {errors["phone"] ? (
                 <p className="text-xs text-destructive">{errors["phone"]}</p>
-              ) : null}
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Saved as {countryCode} {localNumber.replace(/\D/g, "") || "…"} for calls and
+                  WhatsApp.
+                </p>
+              )}
             </div>
           </div>
           <div className="mt-4 flex items-center justify-between gap-4">

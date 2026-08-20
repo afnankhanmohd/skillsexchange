@@ -51,7 +51,7 @@ const profileSchema = z.object({
     z
       .string()
       .trim()
-      .regex(/^[+]?[\d\s()-]{7,20}$/, "Enter a valid phone number"),
+      .regex(/^\+\d{6,17}$/, "Enter a valid mobile number with country code"),
     z.literal(""),
   ]),
   contact_visible: z.boolean(),

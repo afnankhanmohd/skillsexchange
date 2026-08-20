@@ -16,11 +16,16 @@ type Props = {
 export function ContactDetails({ userId, name, subject }: Props) {
   const { user } = useAuth();
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ["user-contact", userId],
     enabled: !!user && !!userId,
+    retry: false,
+    staleTime: 5 * 60 * 1000,
     queryFn: () => fetchUserContact(userId!),
   });
+
+  const isRateLimited =
+    error instanceof Error && /rate_limited|rate limit/i.test(error.message);
 
   if (!userId) return null;
 

@@ -324,16 +324,41 @@ function EditProfilePage() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="phone">Mobile number</Label>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                defaultValue={contactQuery.data?.phone ?? ""}
-                placeholder="+91 98765 43210"
-              />
+              <div className="flex gap-2">
+                <Select value={countryCode} onValueChange={setCountryCode}>
+                  <SelectTrigger className="w-[7.5rem] shrink-0" aria-label="Country code">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COUNTRY_CODES.map((entry) => (
+                      <SelectItem key={entry.code} value={entry.code}>
+                        {entry.flag} {entry.code}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel-national"
+                  value={localNumber}
+                  onChange={(event) => {
+                    setLocalNumber(event.target.value.replace(/[^\d\s-]/g, ""));
+                    setErrors((prev) => ({ ...prev, phone: "" }));
+                  }}
+                  placeholder="98765 43210"
+                />
+              </div>
               {errors["phone"] ? (
                 <p className="text-xs text-destructive">{errors["phone"]}</p>
-              ) : null}
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Saved as {countryCode} {localNumber.replace(/\D/g, "") || "…"} for calls and
+                  WhatsApp.
+                </p>
+              )}
             </div>
           </div>
           <div className="mt-4 flex items-center justify-between gap-4">

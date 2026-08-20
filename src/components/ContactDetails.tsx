@@ -53,6 +53,21 @@ export function ContactDetails({ userId, name, subject }: Props) {
     );
   }
 
+  if (isRateLimited) {
+    return (
+      <div className="rounded-xl border border-border p-4">
+        <p className="flex items-center gap-2 text-sm font-medium">
+          <ShieldOff className="size-4 text-muted-foreground" />
+          Too many contact lookups
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          You&apos;ve viewed a lot of contact details recently. Please wait a little while before
+          requesting more.
+        </p>
+      </div>
+    );
+  }
+
   const email = data?.email?.trim() || null;
   const phone = data?.phone?.trim() || null;
 

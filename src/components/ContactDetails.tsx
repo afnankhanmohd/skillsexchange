@@ -16,11 +16,16 @@ type Props = {
 export function ContactDetails({ userId, name, subject }: Props) {
   const { user } = useAuth();
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ["user-contact", userId],
     enabled: !!user && !!userId,
+    retry: false,
+    staleTime: 5 * 60 * 1000,
     queryFn: () => fetchUserContact(userId!),
   });
+
+  const isRateLimited =
+    error instanceof Error && /rate_limited|rate limit/i.test(error.message);
 
   if (!userId) return null;
 
@@ -44,6 +49,21 @@ export function ContactDetails({ userId, name, subject }: Props) {
         <Skeleton className="h-4 w-32" />
         <Skeleton className="h-9 w-full" />
         <Skeleton className="h-9 w-full" />
+      </div>
+    );
+  }
+
+  if (isRateLimited) {
+    return (
+      <div className="rounded-xl border border-border p-4">
+        <p className="flex items-center gap-2 text-sm font-medium">
+          <ShieldOff className="size-4 text-muted-foreground" />
+          Too many contact lookups
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          You&apos;ve viewed a lot of contact details recently. Please wait a little while before
+          requesting more.
+        </p>
       </div>
     );
   }

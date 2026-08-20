@@ -56,6 +56,42 @@ export type Database = {
           },
         ]
       }
+      contact_lookups: {
+        Row: {
+          created_at: string
+          id: string
+          target_id: string
+          viewer_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          target_id: string
+          viewer_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          target_id?: string
+          viewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_lookups_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_lookups_viewer_id_fkey"
+            columns: ["viewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_messages: {
         Row: {
           created_at: string

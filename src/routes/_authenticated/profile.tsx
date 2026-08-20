@@ -137,15 +137,19 @@ function EditProfilePage() {
       portfolio_url: form.get("portfolio_url") ?? "",
       linkedin_url: form.get("linkedin_url") ?? "",
       email: form.get("email") ?? "",
-      phone: form.get("phone") ?? "",
+      phone: joinPhone(countryCode, localNumber),
       contact_visible: contactVisible,
     });
-    if (!parsed.success) {
-      setErrors(
-        Object.fromEntries(
-          parsed.error.issues.map((issue) => [String(issue.path[0]), issue.message]),
-        ),
-      );
+    const phoneError = validateLocalNumber(localNumber);
+    if (!parsed.success || phoneError) {
+      setErrors({
+        ...(parsed.success
+          ? {}
+          : Object.fromEntries(
+              parsed.error.issues.map((issue) => [String(issue.path[0]), issue.message]),
+            )),
+        ...(phoneError ? { phone: phoneError } : {}),
+      });
       return;
     }
     setErrors({});

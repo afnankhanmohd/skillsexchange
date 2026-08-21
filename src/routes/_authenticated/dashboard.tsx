@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
+import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
+
 import {
   fetchInquiries,
   fetchMyApplications,

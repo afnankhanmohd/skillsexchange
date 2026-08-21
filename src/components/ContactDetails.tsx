@@ -18,6 +18,7 @@ type Props = {
 
 export function ContactDetails({ userId, name, subject }: Props) {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["user-contact", userId],
@@ -26,6 +27,26 @@ export function ContactDetails({ userId, name, subject }: Props) {
     staleTime: 5 * 60 * 1000,
     queryFn: () => fetchUserContact(userId!),
   });
+
+  // Live-update the card when this student changes their contact details or
+  // flips the share-my-contact toggle.
+  useEffect(() => {
+    if (!user || !userId) return;
+    const channel = supabase
+      .channel(`profile-contact-${userId}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${userId}` },
+        () => {
+          void queryClient.invalidateQueries({ queryKey: ["user-contact", userId] });
+        },
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [user, userId, queryClient]);
+
 
   const isRateLimited =
     error instanceof Error && /rate_limited|rate limit/i.test(error.message);

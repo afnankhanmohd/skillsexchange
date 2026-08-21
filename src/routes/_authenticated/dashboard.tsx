@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
+import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
+
 import {
   fetchInquiries,
   fetchMyApplications,
@@ -72,9 +74,42 @@ function DashboardPage() {
 
   const completion = profileCompletion(profile);
 
+  const realtimeStatus = useRealtimeInvalidate(
+    `dashboard-${userId}`,
+    [
+      { table: "skills", filter: `user_id=eq.${userId}`, keys: [["my-skills", userId]] },
+      { table: "jobs", filter: `user_id=eq.${userId}`, keys: [["my-jobs", userId]] },
+      { table: "saved_items", filter: `user_id=eq.${userId}`, keys: [["saved", userId]] },
+      { table: "inquiries", keys: [["inquiries", userId]] },
+      { table: "applications", keys: [["applications", userId]] },
+      { table: "profiles", filter: `id=eq.${userId}`, keys: [["profile", userId]] },
+    ],
+    !!userId,
+  );
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <header className="card-surface p-5 sm:p-7">
+        <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
+          <span
+            className={`size-2 rounded-full ${
+              realtimeStatus === "live"
+                ? "bg-emerald-500"
+                : realtimeStatus === "reconnecting"
+                  ? "bg-amber-500 animate-pulse"
+                  : "bg-muted-foreground/50 animate-pulse"
+            }`}
+            aria-hidden
+          />
+          <span>
+            {realtimeStatus === "live"
+              ? "Live updates on"
+              : realtimeStatus === "reconnecting"
+                ? "Reconnecting live updates…"
+                : "Connecting live updates…"}
+          </span>
+        </div>
+
         <h1 className="text-2xl font-bold tracking-tight">
           Welcome back{profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
         </h1>

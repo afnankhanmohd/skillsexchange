@@ -1,12 +1,11 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Mail, MessageCircle, Phone, ShieldOff } from "lucide-react";
-import { useEffect } from "react";
+import { Loader2, Mail, MessageCircle, Phone, RefreshCw, ShieldOff, WifiOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import { fetchUserContact, whatsappLink } from "@/lib/contact";
 
 
@@ -18,9 +17,8 @@ type Props = {
 
 export function ContactDetails({ userId, name, subject }: Props) {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
 
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isFetching, isError, error, refetch } = useQuery({
     queryKey: ["user-contact", userId],
     enabled: !!user && !!userId,
     retry: false,
@@ -30,23 +28,17 @@ export function ContactDetails({ userId, name, subject }: Props) {
 
   // Live-update the card when this student changes their contact details or
   // flips the share-my-contact toggle.
-  useEffect(() => {
-    if (!user || !userId) return;
-    const channel = supabase
-      .channel(`profile-contact-${userId}`)
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${userId}` },
-        () => {
-          void queryClient.invalidateQueries({ queryKey: ["user-contact", userId] });
-        },
-      )
-      .subscribe();
-    return () => {
-      void supabase.removeChannel(channel);
-    };
-  }, [user, userId, queryClient]);
-
+  const realtimeStatus = useRealtimeInvalidate(
+    `profile-contact-${userId}`,
+    [
+      {
+        table: "profiles",
+        filter: `id=eq.${userId}`,
+        keys: [["user-contact", userId]],
+      },
+    ],
+    !!user && !!userId,
+  );
 
   const isRateLimited =
     error instanceof Error && /rate_limited|rate limit/i.test(error.message);
@@ -103,10 +95,28 @@ export function ContactDetails({ userId, name, subject }: Props) {
           Direct contact unavailable
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
-          {data && !data.contactVisible
+          {isError
+            ? "We couldn't load contact details just now."
+            : data && !data.contactVisible
             ? `${name} keeps their contact details private. Send an inquiry instead.`
-            : `${name} hasn't shared a phone number or email yet. Send an inquiry instead.`}
+              : `${name} hasn't shared a phone number or email yet. Send an inquiry instead.`}
         </p>
+        {isError ? (
+          <Button
+            size="sm"
+            variant="outline"
+            className="mt-3"
+            disabled={isFetching}
+            onClick={() => void refetch()}
+          >
+            {isFetching ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <RefreshCw className="size-4" />
+            )}
+            Try again
+          </Button>
+        ) : null}
       </div>
     );
   }
@@ -142,8 +152,17 @@ export function ContactDetails({ userId, name, subject }: Props) {
           </>
         ) : null}
       </div>
-      <p className="mt-3 text-xs text-muted-foreground">
-        Shared by {name}. Please keep outreach respectful and relevant.
+      <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+        {realtimeStatus === "live" && !isFetching ? null : realtimeStatus === "reconnecting" ? (
+          <WifiOff className="size-3.5 text-amber-500" />
+        ) : (
+          <Loader2 className="size-3.5 animate-spin" />
+        )}
+        {realtimeStatus === "reconnecting"
+          ? "Reconnecting for live updates…"
+          : isFetching
+            ? "Refreshing contact details…"
+            : `Shared by ${name}. Please keep outreach respectful and relevant.`}
       </p>
     </div>
   );

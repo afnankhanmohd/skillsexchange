@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION private.get_user_contact(uuid) TO authenticated;

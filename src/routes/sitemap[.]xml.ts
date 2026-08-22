@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 
-import { fetchJobs, fetchSkills } from "@/lib/api";
+import { fetchSkills } from "@/lib/api";
 
 const BASE_URL = "https://skillsexchange.lovable.app";
 
@@ -18,7 +18,6 @@ export const Route = createFileRoute("/sitemap.xml")({
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/skills", changefreq: "daily", priority: "0.9" },
-          { path: "/jobs", changefreq: "daily", priority: "0.9" },
           { path: "/how-it-works", changefreq: "monthly", priority: "0.6" },
           { path: "/contact", changefreq: "monthly", priority: "0.5" },
           { path: "/auth", changefreq: "monthly", priority: "0.4" },

@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
-  Briefcase,
   Handshake,
   Rocket,
   Search,
@@ -16,13 +15,12 @@ import { useState } from "react";
 
 import { CardSkeletonGrid } from "@/components/CardSkeleton";
 import { Chip } from "@/components/Chip";
-import { JobCard } from "@/components/JobCard";
 import { SkillCard } from "@/components/SkillCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { fetchJobs, fetchSkills } from "@/lib/api";
+import { fetchSkills } from "@/lib/api";
 import { SKILL_CATEGORIES } from "@/lib/constants";
-import { sampleJobs, sampleSkills, sampleTestimonials } from "@/lib/sample-data";
+import { sampleSkills, sampleTestimonials } from "@/lib/sample-data";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,18 +29,19 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Discover student skills, post small jobs and projects, and exchange talents with peers. Built for students who want real experience.",
+          "Discover student skills, share what you can do, and exchange talents with peers. Built for students who want real experience.",
       },
       { property: "og:title", content: "skillSExhange — Learn More. Earn More. Exchange Skills." },
       {
         property: "og:description",
         content:
-          "Peer-to-peer skill and opportunity exchange for students. Browse skills, post jobs, collaborate.",
+          "Peer-to-peer skill exchange for students. Browse skills, share your talents, collaborate.",
       },
     ],
   }),
   component: LandingPage,
 });
+
 
 const BENEFITS = [
   {
@@ -78,10 +77,9 @@ function LandingPage() {
   const [query, setQuery] = useState("");
 
   const skillsQuery = useQuery({ queryKey: ["skills"], queryFn: fetchSkills });
-  const jobsQuery = useQuery({ queryKey: ["jobs"], queryFn: fetchJobs });
 
   const skills = (skillsQuery.data?.length ? skillsQuery.data : sampleSkills).slice(0, 6);
-  const jobs = (jobsQuery.data?.length ? jobsQuery.data : sampleJobs).slice(0, 3);
+
 
   return (
     <>
@@ -106,8 +104,8 @@ function LandingPage() {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline">
-                <Link to="/jobs/new">
-                  <Briefcase className="size-4" /> Post a Job
+                <Link to="/skills/new">
+                  <Sparkles className="size-4" /> Share a Skill
                 </Link>
               </Button>
             </div>
@@ -120,8 +118,9 @@ function LandingPage() {
               }}
             >
               <label htmlFor="hero-search" className="sr-only">
-                Search skills, services, jobs or keywords
+                Search skills, services or keywords
               </label>
+
               <div className="relative flex-1">
                 <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -176,34 +175,6 @@ function LandingPage() {
         </div>
       </section>
 
-      <section className="bg-card py-12">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight">Featured opportunities</h2>
-              <p className="text-sm text-muted-foreground">
-                Gigs, collaborations, and projects posted by students.
-              </p>
-            </div>
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/jobs">
-                Find jobs <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-          </div>
-          <div className="mt-6">
-            {jobsQuery.isLoading ? (
-              <CardSkeletonGrid count={3} />
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {jobs.map((job) => (
-                  <JobCard key={job.id} job={job} />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
 
       <section className="mx-auto max-w-6xl px-4 py-12">
         <h2 className="text-2xl font-bold tracking-tight">How it works</h2>

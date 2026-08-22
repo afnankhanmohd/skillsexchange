@@ -72,7 +72,7 @@ function SkillsPage() {
 
   const saveMutation = useMutation({
     mutationFn: ({ skill, isSaved }: { skill: Skill; isSaved: boolean }) =>
-      toggleSaved(user!.id, "skill", skill.id, isSaved),
+      toggleSaved(user!.id, skill.id, isSaved),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["saved", user?.id] });
       toast.success(variables.isSaved ? "Removed from saved" : "Saved to your dashboard");

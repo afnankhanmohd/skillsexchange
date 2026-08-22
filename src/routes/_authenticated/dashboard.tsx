@@ -1,10 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Bookmark, Briefcase, Inbox, Plus, Sparkles, UserCog } from "lucide-react";
+import { Bookmark, Inbox, Plus, Sparkles, UserCog } from "lucide-react";
 
 import { CardSkeletonGrid } from "@/components/CardSkeleton";
 import { EmptyState } from "@/components/EmptyState";
-import { JobCard } from "@/components/JobCard";
 import { SkillCard } from "@/components/SkillCard";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -12,13 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 
-import {
-  fetchInquiries,
-  fetchMyApplications,
-  fetchMyJobs,
-  fetchMySkills,
-  fetchSavedItems,
-} from "@/lib/api";
+import { fetchInquiries, fetchMySkills, fetchSavedItems } from "@/lib/api";
 import { profileCompletion } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -28,12 +21,12 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
       {
         name: "description",
         content:
-          "Manage your published skills, job posts, saved listings, and incoming inquiries in one place.",
+          "Manage your published skills, saved listings, and incoming inquiries in one place.",
       },
       { property: "og:title", content: "Your dashboard — skillSExhange" },
       {
         property: "og:description",
-        content: "Your skills, jobs, saved listings, and inquiries.",
+        content: "Your skills, saved listings, and inquiries.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -51,11 +44,6 @@ function DashboardPage() {
     enabled: !!userId,
     queryFn: () => fetchMySkills(userId),
   });
-  const jobsQuery = useQuery({
-    queryKey: ["my-jobs", userId],
-    enabled: !!userId,
-    queryFn: () => fetchMyJobs(userId),
-  });
   const savedQuery = useQuery({
     queryKey: ["saved", userId],
     enabled: !!userId,
@@ -66,11 +54,6 @@ function DashboardPage() {
     enabled: !!userId,
     queryFn: () => fetchInquiries(userId),
   });
-  const applicationsQuery = useQuery({
-    queryKey: ["applications", userId],
-    enabled: !!userId,
-    queryFn: () => fetchMyApplications(userId),
-  });
 
   const completion = profileCompletion(profile);
 
@@ -78,14 +61,13 @@ function DashboardPage() {
     `dashboard-${userId}`,
     [
       { table: "skills", filter: `user_id=eq.${userId}`, keys: [["my-skills", userId]] },
-      { table: "jobs", filter: `user_id=eq.${userId}`, keys: [["my-jobs", userId]] },
       { table: "saved_items", filter: `user_id=eq.${userId}`, keys: [["saved", userId]] },
       { table: "inquiries", keys: [["inquiries", userId]] },
-      { table: "applications", keys: [["applications", userId]] },
       { table: "profiles", filter: `id=eq.${userId}`, keys: [["profile", userId]] },
     ],
     !!userId,
   );
+
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -137,11 +119,6 @@ function DashboardPage() {
             </Link>
           </Button>
           <Button asChild size="sm" variant="outline">
-            <Link to="/jobs/new">
-              <Briefcase className="size-4" /> Post a job
-            </Link>
-          </Button>
-          <Button asChild size="sm" variant="outline">
             <Link to="/profile">
               <UserCog className="size-4" /> Edit profile
             </Link>
@@ -152,10 +129,10 @@ function DashboardPage() {
       <Tabs defaultValue="skills" className="mt-8">
         <TabsList className="flex-wrap">
           <TabsTrigger value="skills">My skills</TabsTrigger>
-          <TabsTrigger value="jobs">My jobs</TabsTrigger>
           <TabsTrigger value="saved">Saved</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
+
 
         <TabsContent value="skills" className="mt-5">
           {skillsQuery.isLoading ? (
@@ -180,60 +157,23 @@ function DashboardPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="jobs" className="mt-5">
-          {jobsQuery.isLoading ? (
-            <CardSkeletonGrid count={3} />
-          ) : jobsQuery.data?.length ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {jobsQuery.data.map((job) => (
-                <JobCard key={job.id} job={job} />
-              ))}
-            </div>
-          ) : (
-            <EmptyState
-              icon={Briefcase}
-              title="No job posts yet"
-              description="Post a gig, project, or collaboration request to find student help."
-              action={
-                <Button asChild>
-                  <Link to="/jobs/new">Post a job</Link>
-                </Button>
-              }
-            />
-          )}
-        </TabsContent>
-
         <TabsContent value="saved" className="mt-5 space-y-6">
           {savedQuery.isLoading ? (
             <CardSkeletonGrid count={3} />
-          ) : savedQuery.data && (savedQuery.data.skills.length || savedQuery.data.jobs.length) ? (
-            <>
-              {savedQuery.data.skills.length ? (
-                <section>
-                  <h2 className="text-sm font-semibold">Saved skills</h2>
-                  <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {savedQuery.data.skills.map((skill) => (
-                      <SkillCard key={skill.id} skill={skill} isSaved />
-                    ))}
-                  </div>
-                </section>
-              ) : null}
-              {savedQuery.data.jobs.length ? (
-                <section>
-                  <h2 className="text-sm font-semibold">Saved jobs</h2>
-                  <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {savedQuery.data.jobs.map((job) => (
-                      <JobCard key={job.id} job={job} isSaved />
-                    ))}
-                  </div>
-                </section>
-              ) : null}
-            </>
+          ) : savedQuery.data?.skills.length ? (
+            <section>
+              <h2 className="text-sm font-semibold">Saved skills</h2>
+              <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {savedQuery.data.skills.map((skill) => (
+                  <SkillCard key={skill.id} skill={skill} isSaved />
+                ))}
+              </div>
+            </section>
           ) : (
             <EmptyState
               icon={Bookmark}
               title="Nothing saved yet"
-              description="Save skills and jobs while browsing to come back to them later."
+              description="Save skills while browsing to come back to them later."
               action={
                 <Button asChild>
                   <Link to="/skills">Explore skills</Link>
@@ -242,6 +182,7 @@ function DashboardPage() {
             />
           )}
         </TabsContent>
+
 
         <TabsContent value="activity" className="mt-5 space-y-6">
           <section className="card-surface p-5">
@@ -259,33 +200,13 @@ function DashboardPage() {
                 ))}
               </ul>
             ) : (
-              <p className="mt-2 text-sm text-muted-foreground">
-                No inquiries yet — they&apos;ll appear here once students reach out.
-              </p>
-            )}
-          </section>
-
-          <section className="card-surface p-5">
-            <h2 className="text-sm font-semibold">My applications</h2>
-            {applicationsQuery.data?.length ? (
-              <ul className="mt-3 space-y-3 text-sm">
-                {applicationsQuery.data.map((application) => (
-                  <li key={application.id} className="rounded-xl bg-muted/60 p-3">
-                    <p className="font-medium">{application.job?.title ?? "Job removed"}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {application.status} · {new Date(application.created_at).toLocaleDateString()}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
               <EmptyState
                 icon={Inbox}
-                title="No applications yet"
-                description="Express interest in a job and track its status here."
+                title="No inquiries yet"
+                description="Reach out to a student from a skill listing and your conversations will appear here."
                 action={
                   <Button asChild>
-                    <Link to="/jobs">Find jobs</Link>
+                    <Link to="/skills">Explore skills</Link>
                   </Button>
                 }
               />
@@ -296,3 +217,4 @@ function DashboardPage() {
     </div>
   );
 }
+

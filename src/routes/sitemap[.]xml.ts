@@ -25,17 +25,12 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/terms", changefreq: "yearly", priority: "0.3" },
         ];
 
-        const [skills, jobs] = await Promise.all([
-          fetchSkills().catch(() => []),
-          fetchJobs().catch(() => []),
-        ]);
+        const skills = await fetchSkills().catch(() => []);
 
         for (const skill of skills) {
           entries.push({ path: `/skills/${skill.id}`, changefreq: "weekly", priority: "0.7" });
         }
-        for (const job of jobs) {
-          entries.push({ path: `/jobs/${job.id}`, changefreq: "weekly", priority: "0.7" });
-        }
+
 
         const urls = entries.map((e) =>
           [

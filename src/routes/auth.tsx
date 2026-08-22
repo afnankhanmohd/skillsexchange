@@ -24,7 +24,7 @@ export const Route = createFileRoute("/auth")({
       {
         name: "description",
         content:
-          "Create your free student account on skillSExhange to publish skills, post jobs, and connect with peers.",
+          "Create your free student account on skillSExhange to publish skills and connect with peers.",
       },
       { property: "og:title", content: "Sign in or join — skillSExhange" },
       {
@@ -164,7 +164,7 @@ function AuthPage() {
             ? "Join the student exchange and start collaborating."
             : mode === "forgot"
               ? "We'll email you a secure reset link."
-              : "Sign in to manage your skills, jobs, and inquiries."}
+              : "Sign in to manage your skills, saved listings, and inquiries."}
         </p>
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>

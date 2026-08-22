@@ -2,7 +2,6 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Compass,
-  Briefcase,
   Home,
   LayoutDashboard,
   LogOut,
@@ -31,7 +30,6 @@ import { supabase } from "@/integrations/supabase/client";
 
 const NAV_LINKS = [
   { to: "/skills", label: "Explore Skills" },
-  { to: "/jobs", label: "Find Jobs" },
   { to: "/how-it-works", label: "How It Works" },
   { to: "/contact", label: "Contact" },
 ] as const;
@@ -109,11 +107,6 @@ export function Navbar() {
                   <DropdownMenuItem asChild>
                     <Link to="/profile">
                       <User className="size-4" /> Edit profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/jobs/new">
-                      <Briefcase className="size-4" /> Post a job
                     </Link>
                   </DropdownMenuItem>
                   {isAdmin ? (
@@ -220,7 +213,6 @@ export function MobileTabBar() {
   const items = [
     { to: "/", label: "Home", icon: Home },
     { to: "/skills", label: "Skills", icon: Compass },
-    { to: "/jobs", label: "Jobs", icon: Briefcase },
     user
       ? { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard }
       : { to: "/auth", label: "Sign in", icon: User },

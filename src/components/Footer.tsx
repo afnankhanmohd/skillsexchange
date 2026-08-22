@@ -24,11 +24,6 @@ export function Footer() {
               </Link>
             </li>
             <li>
-              <Link to="/jobs" className="hover:text-primary">
-                Find jobs
-              </Link>
-            </li>
-            <li>
               <Link to="/how-it-works" className="hover:text-primary">
                 How it works
               </Link>

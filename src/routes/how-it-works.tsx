@@ -31,7 +31,7 @@ const STEPS = [
   {
     icon: Sparkles,
     title: "2. Add skills or post an opportunity",
-    body: "Publish each skill you can offer with an experience level and exchange preference — paid, skill exchange, volunteer, or either. Need help instead? Post a job with required skills, compensation and a deadline.",
+    body: "Publish each skill you can offer with an experience level and exchange preference — paid, skill exchange, volunteer, or either. Browsing instead? Find peers whose skills match what you need.",
   },
   {
     icon: Handshake,

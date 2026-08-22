@@ -2,10 +2,8 @@ import type { Tables } from "@/integrations/supabase/types";
 
 export type Profile = Tables<"profiles">;
 export type SkillRow = Tables<"skills">;
-export type JobRow = Tables<"jobs">;
 export type ContactMessage = Tables<"contact_messages">;
 export type Inquiry = Tables<"inquiries">;
-export type Application = Tables<"applications">;
 
 export type PublicProfile = Pick<
   Profile,
@@ -21,7 +19,6 @@ export type PublicProfile = Pick<
 >;
 
 export type Skill = SkillRow & { profile: PublicProfile | null; isSample?: boolean };
-export type Job = JobRow & { profile: PublicProfile | null; isSample?: boolean };
 
 export function profileCompletion(profile: Profile | null): number {
   if (!profile) return 0;

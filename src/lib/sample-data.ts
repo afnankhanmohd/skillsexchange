@@ -2,7 +2,7 @@
  * Preview-only sample content. It is never written to the database and is only
  * used as a visual fallback when a marketplace query returns zero real rows.
  */
-import type { Job, PublicProfile, Skill } from "./types";
+import type { PublicProfile, Skill } from "./types";
 
 const now = new Date();
 const daysAgo = (n: number) => new Date(now.getTime() - n * 86_400_000).toISOString();
@@ -147,112 +147,6 @@ export const sampleSkills: Skill[] = [
   ),
 ];
 
-function job(
-  id: string,
-  profile: PublicProfile,
-  data: Partial<Job> & Pick<Job, "title" | "category" | "description">,
-  index: number,
-): Job {
-  return {
-    id,
-    user_id: profile.id,
-    title: data.title,
-    organization: data.organization ?? null,
-    category: data.category,
-    description: data.description,
-    required_skills: data.required_skills ?? [],
-    compensation_type: data.compensation_type ?? "Negotiable",
-    compensation_details: data.compensation_details ?? "Discussed with the team",
-    work_mode: data.work_mode ?? "Remote",
-    location: data.location ?? profile.location,
-    deadline: data.deadline ?? daysAhead(14 + index),
-    status: "open",
-    created_at: daysAgo(index + 1),
-    updated_at: daysAgo(index + 1),
-    profile,
-    isSample: true,
-  };
-}
-
-export const sampleJobs: Job[] = [
-  job(
-    "sample-j1",
-    p(1),
-    {
-      title: "Build a Landing Page for Our Student Club",
-      organization: "Coding Club, Delhi University",
-      category: "Web Development",
-      description:
-        "We need a single-page site for our club with an events section, team page and a join form. Design references will be shared. Great chance to add a real project to your portfolio.",
-      required_skills: ["React", "Tailwind CSS", "Responsive design"],
-      compensation_type: "Paid",
-      compensation_details: "₹6,000 fixed on delivery",
-    },
-    0,
-  ),
-  job(
-    "sample-j2",
-    p(2),
-    {
-      title: "Need a Video Editor for a College Event",
-      organization: "Sparkfest 2026",
-      category: "Video Editing",
-      description:
-        "Two-day cultural fest coverage: one 90-second highlight film plus five reels. Raw footage will be handed over on the last evening of the fest.",
-      required_skills: ["Premiere Pro", "Color grading", "Sound design"],
-      compensation_type: "Paid",
-      compensation_details: "₹4,500 + festival passes",
-      work_mode: "Hybrid",
-    },
-    1,
-  ),
-  job(
-    "sample-j3",
-    p(3),
-    {
-      title: "Looking for a Presentation Designer",
-      organization: "E-Cell VIT",
-      category: "Graphic Design",
-      description:
-        "Polish a 15-slide pitch deck for a national startup competition. We have the content — we need visual hierarchy, charts and consistent styling.",
-      required_skills: ["Figma", "Slides", "Data visualisation"],
-      compensation_type: "Skill Exchange",
-      compensation_details: "Exchange for web development or mentoring hours",
-    },
-    2,
-  ),
-  job(
-    "sample-j4",
-    p(4),
-    {
-      title: "Content Writer for Campus Newsletter",
-      organization: "NIT Trichy Media Cell",
-      category: "Content Writing",
-      description:
-        "Write two 500-word features every month covering student achievements and campus initiatives. Editing support provided.",
-      required_skills: ["Writing", "Interviewing", "Editing"],
-      compensation_type: "Volunteer",
-      compensation_details: "Certificate + byline credit",
-    },
-    3,
-  ),
-  job(
-    "sample-j5",
-    p(5),
-    {
-      title: "Data Analysis Intern for Survey Project",
-      organization: "Research Group, BITS Pilani",
-      category: "Data Analysis",
-      description:
-        "Help clean and analyse a 2,000-response survey on student wellbeing, then co-author the summary report.",
-      required_skills: ["Python", "Pandas", "Statistics"],
-      compensation_type: "Negotiable",
-      compensation_details: "Stipend + co-authorship",
-    },
-    4,
-  ),
-];
-
 export const sampleTestimonials = [
   {
     name: "Aarav Menon",
@@ -264,7 +158,7 @@ export const sampleTestimonials = [
     name: "Sara Iqbal",
     college: "Delhi University",
     quote:
-      "I posted a club landing page gig on a Monday and had three serious student applicants by Wednesday.",
+      "I listed my design skills on a Monday and had three students reach out by Wednesday.",
   },
   {
     name: "Dev Sharma",

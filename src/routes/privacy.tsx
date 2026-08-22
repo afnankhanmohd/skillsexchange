@@ -9,7 +9,7 @@ export const Route = createFileRoute("/privacy")({
       {
         name: "description",
         content:
-          "How skillSExhange collects, uses, and protects student data across profiles, skills, and job listings.",
+          "How skillSExhange collects, uses, and protects student data across profiles and skill listings.",
       },
       { property: "og:title", content: "Privacy policy — skillSExhange" },
       {
@@ -41,22 +41,22 @@ function PrivacyPage() {
         <section>
           <h2 className="text-lg font-semibold text-foreground">What is public</h2>
           <p className="mt-2">
-            Your name, college, location, bio, availability, links, avatar, active skills, and open
-            job posts are visible to anyone browsing the platform. Your email address and phone
+            Your name, college, location, bio, availability, links, avatar, and active skills are
+            visible to anyone browsing the platform. Your email address and phone
             number are never shown publicly and are not readable by other users.
           </p>
         </section>
         <section>
           <h2 className="text-lg font-semibold text-foreground">Messages and inquiries</h2>
           <p className="mt-2">
-            Inquiries and job applications are visible only to the sender and the recipient. Contact
+            Inquiries are visible only to the sender and the recipient. Contact
             form submissions are visible only to platform administrators.
           </p>
         </section>
         <section>
           <h2 className="text-lg font-semibold text-foreground">Your choices</h2>
           <p className="mt-2">
-            You can edit or delete your skills and job posts at any time, and deactivate listings so
+            You can edit or delete your skills at any time, and deactivate listings so
             they no longer appear publicly. To request deletion of your account and data, email{" "}
             <a className="text-primary hover:underline" href={`mailto:${SUPPORT_EMAIL}`}>
               {SUPPORT_EMAIL}

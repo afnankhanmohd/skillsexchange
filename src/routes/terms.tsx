@@ -14,7 +14,7 @@ export const Route = createFileRoute("/terms")({
       { property: "og:title", content: "Terms of service — skillSExhange" },
       {
         property: "og:description",
-        content: "The rules for publishing skills and job posts on skillSExhange.",
+        content: "The rules for publishing skills on skillSExhange.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

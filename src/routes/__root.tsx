@@ -87,7 +87,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Discover student skills, post small jobs, and exchange talents with peers on skillSExhange.",
+          "Discover student skills, share your talents, and exchange skills with peers on skillSExhange.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

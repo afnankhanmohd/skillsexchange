@@ -1,4 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+
 import type { Skill } from "./types";
 
 const PROFILE_FIELDS =

@@ -1,6 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Bookmark, Inbox, Plus, Sparkles, UserCog } from "lucide-react";
+import { toast } from "sonner";
 
 import { CardSkeletonGrid } from "@/components/CardSkeleton";
 import { EmptyState } from "@/components/EmptyState";
@@ -11,7 +12,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 
-import { fetchInquiries, fetchMySkills, fetchSavedItems } from "@/lib/api";
+import { Badge } from "@/components/ui/badge";
+import {
+  fetchInquiries,
+  fetchMySkills,
+  fetchSavedItems,
+  toggleSaved,
+  updateInquiryStatus,
+} from "@/lib/api";
 import { profileCompletion } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -54,6 +62,30 @@ function DashboardPage() {
     enabled: !!userId,
     queryFn: () => fetchInquiries(userId),
   });
+
+  const queryClient = useQueryClient();
+
+  const unsaveMutation = useMutation({
+    mutationFn: (skillId: string) => toggleSaved(userId, skillId, true),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["saved", userId] });
+      toast.success("Removed from saved");
+    },
+    onError: (error) => toast.error("Could not update saved items", { description: error.message }),
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) => updateInquiryStatus(id, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["inquiries", userId] });
+      toast.success("Inquiry updated");
+    },
+    onError: (error) => toast.error("Could not update inquiry", { description: error.message }),
+  });
+
+  const inquiries = inquiriesQuery.data ?? [];
+  const received = inquiries.filter((item) => item.recipient_id === userId);
+  const sent = inquiries.filter((item) => item.sender_id === userId);
 
   const completion = profileCompletion(profile);
 
@@ -128,9 +160,9 @@ function DashboardPage() {
 
       <Tabs defaultValue="skills" className="mt-8">
         <TabsList className="flex-wrap">
-          <TabsTrigger value="skills">My skills</TabsTrigger>
-          <TabsTrigger value="saved">Saved</TabsTrigger>
-          <TabsTrigger value="activity">Activity</TabsTrigger>
+          <TabsTrigger value="skills">My skills ({skillsQuery.data?.length ?? 0})</TabsTrigger>
+          <TabsTrigger value="saved">Saved ({savedQuery.data?.skills.length ?? 0})</TabsTrigger>
+          <TabsTrigger value="activity">Inquiries ({inquiries.length})</TabsTrigger>
         </TabsList>
 
 
@@ -165,7 +197,12 @@ function DashboardPage() {
               <h2 className="text-sm font-semibold">Saved skills</h2>
               <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {savedQuery.data.skills.map((skill) => (
-                  <SkillCard key={skill.id} skill={skill} isSaved />
+                  <SkillCard
+                    key={skill.id}
+                    skill={skill}
+                    isSaved
+                    onToggleSave={(item) => unsaveMutation.mutate(item.id)}
+                  />
                 ))}
               </div>
             </section>
@@ -186,16 +223,53 @@ function DashboardPage() {
 
         <TabsContent value="activity" className="mt-5 space-y-6">
           <section className="card-surface p-5">
-            <h2 className="text-sm font-semibold">Recent inquiries</h2>
-            {inquiriesQuery.data?.length ? (
+            <h2 className="text-sm font-semibold">Inquiries on your listings</h2>
+            {inquiriesQuery.isLoading ? (
+              <p className="mt-3 text-sm text-muted-foreground">Loading inquiries…</p>
+            ) : received.length ? (
               <ul className="mt-3 space-y-3 text-sm">
-                {inquiriesQuery.data.map((inquiry) => (
+                {received.map((inquiry) => (
                   <li key={inquiry.id} className="rounded-xl bg-muted/60 p-3">
-                    <p className="text-muted-foreground">{inquiry.message}</p>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="font-medium">
+                        {inquiry.sender?.full_name || "A student"}
+                        {inquiry.skill ? (
+                          <>
+                            {" · "}
+                            <Link
+                              to="/skills/$skillId"
+                              params={{ skillId: inquiry.skill.id }}
+                              className="text-primary hover:underline"
+                            >
+                              {inquiry.skill.title}
+                            </Link>
+                          </>
+                        ) : null}
+                      </p>
+                      <Badge variant="secondary">{inquiry.status}</Badge>
+                    </div>
+                    <p className="mt-1 text-muted-foreground">{inquiry.message}</p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {inquiry.sender_id === userId ? "Sent" : "Received"} ·{" "}
-                      {new Date(inquiry.created_at).toLocaleDateString()} · {inquiry.status}
+                      Received {new Date(inquiry.created_at).toLocaleDateString()}
                     </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={statusMutation.isPending || inquiry.status === "accepted"}
+                        onClick={() => statusMutation.mutate({ id: inquiry.id, status: "accepted" })}
+                      >
+                        Accept
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={statusMutation.isPending || inquiry.status === "declined"}
+                        onClick={() => statusMutation.mutate({ id: inquiry.id, status: "declined" })}
+                      >
+                        Decline
+                      </Button>
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -203,7 +277,41 @@ function DashboardPage() {
               <EmptyState
                 icon={Inbox}
                 title="No inquiries yet"
-                description="Reach out to a student from a skill listing and your conversations will appear here."
+                description="Publish clear skill listings and students will reach out here."
+                action={
+                  <Button asChild>
+                    <Link to="/skills/new">Add a skill</Link>
+                  </Button>
+                }
+              />
+            )}
+          </section>
+
+          <section className="card-surface p-5">
+            <h2 className="text-sm font-semibold">Inquiries you sent</h2>
+            {sent.length ? (
+              <ul className="mt-3 space-y-3 text-sm">
+                {sent.map((inquiry) => (
+                  <li key={inquiry.id} className="rounded-xl bg-muted/60 p-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="font-medium">
+                        To {inquiry.recipient?.full_name || "a student"}
+                        {inquiry.skill ? ` · ${inquiry.skill.title}` : ""}
+                      </p>
+                      <Badge variant="outline">{inquiry.status}</Badge>
+                    </div>
+                    <p className="mt-1 text-muted-foreground">{inquiry.message}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Sent {new Date(inquiry.created_at).toLocaleDateString()}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <EmptyState
+                icon={Sparkles}
+                title="You haven't sent any inquiries"
+                description="Find a peer with the skill you need and start a conversation."
                 action={
                   <Button asChild>
                     <Link to="/skills">Explore skills</Link>

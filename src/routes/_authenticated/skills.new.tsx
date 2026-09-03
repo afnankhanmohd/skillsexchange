@@ -85,6 +85,8 @@ function NewSkillPage() {
       if (error) throw error;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-skills", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["skills"] });
       toast.success("Skill published", { description: "Students can now discover it." });
       void navigate({ to: "/dashboard" });
     },

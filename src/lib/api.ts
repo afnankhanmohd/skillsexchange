@@ -1,4 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+
 import type { Skill } from "./types";
 
 const PROFILE_FIELDS =
@@ -93,15 +95,41 @@ export async function fetchProfile(id: string) {
 }
 
 
-export async function fetchInquiries(userId: string) {
+export type InquiryWithContext = Tables<"inquiries"> & {
+  skill: { id: string; title: string } | null;
+  sender: { id: string; full_name: string; avatar_url: string | null } | null;
+  recipient: { id: string; full_name: string; avatar_url: string | null } | null;
+};
+
+export async function fetchInquiries(userId: string): Promise<InquiryWithContext[]> {
   const { data, error } = await supabase
     .from("inquiries")
-    .select("*")
+    .select(
+      `*,
+       skill:skills(id, title),
+       sender:profiles!inquiries_sender_id_fkey(id, full_name, avatar_url),
+       recipient:profiles!inquiries_recipient_id_fkey(id, full_name, avatar_url)`,
+    )
     .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
     .order("created_at", { ascending: false })
-    .limit(20);
+    .limit(50);
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []) as unknown as InquiryWithContext[];
+}
+
+export async function updateInquiryStatus(id: string, status: string) {
+  const { error } = await supabase.from("inquiries").update({ status }).eq("id", id);
+  if (error) throw error;
+}
+
+export async function setSkillActive(id: string, isActive: boolean) {
+  const { error } = await supabase.from("skills").update({ is_active: isActive }).eq("id", id);
+  if (error) throw error;
+}
+
+export async function deleteSkill(id: string) {
+  const { error } = await supabase.from("skills").delete().eq("id", id);
+  if (error) throw error;
 }
 
 export async function fetchContactMessages() {

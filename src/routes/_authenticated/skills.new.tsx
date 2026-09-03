@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -61,6 +61,7 @@ const schema = z.object({
 function NewSkillPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [category, setCategory] = useState<string>("");
   const [level, setLevel] = useState<string>("Intermediate");
@@ -85,6 +86,8 @@ function NewSkillPage() {
       if (error) throw error;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-skills", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["skills"] });
       toast.success("Skill published", { description: "Students can now discover it." });
       void navigate({ to: "/dashboard" });
     },

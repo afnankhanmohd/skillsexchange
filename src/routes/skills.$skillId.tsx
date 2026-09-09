@@ -4,15 +4,18 @@ import {
   ArrowLeft,
   Bookmark,
   BookmarkCheck,
+  Check,
   Clock,
   Globe,
   Handshake,
+  Inbox,
   Linkedin,
   Loader2,
   MapPin,
   Send,
+  X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Chip } from "@/components/Chip";
@@ -33,7 +36,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { fetchSavedItems, fetchSkill, toggleSaved } from "@/lib/api";
+import {
+  fetchSavedItems,
+  fetchSkill,
+  fetchSkillInquiries,
+  resolveListingPhotoUrls,
+  toggleSaved,
+  updateInquiryStatus,
+} from "@/lib/api";
 import { sampleSkills } from "@/lib/sample-data";
 import type { Skill } from "@/lib/types";
 

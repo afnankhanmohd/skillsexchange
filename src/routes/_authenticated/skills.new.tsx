@@ -71,7 +71,9 @@ function NewSkillPage() {
   const createMutation = useMutation({
     mutationFn: async (values: z.infer<typeof schema>) => {
       if (!user) throw new Error("Not signed in");
+      const photos = files.length > 0 ? await uploadListingPhotos(user.id, files) : [];
       const { error } = await supabase.from("skills").insert({
+        photos,
         user_id: user.id,
         title: values.title,
         category: values.category,

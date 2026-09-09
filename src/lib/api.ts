@@ -141,6 +141,48 @@ export async function fetchContactMessages() {
   return data ?? [];
 }
 
+export async function fetchSkillInquiries(skillId: string): Promise<InquiryWithContext[]> {
+  const { data, error } = await supabase
+    .from("inquiries")
+    .select(
+      `*,
+       skill:skills(id, title),
+       sender:profiles!inquiries_sender_id_fkey(id, full_name, avatar_url),
+       recipient:profiles!inquiries_recipient_id_fkey(id, full_name, avatar_url)`,
+    )
+    .eq("skill_id", skillId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as unknown as InquiryWithContext[];
+}
+
+export async function uploadListingPhotos(userId: string, files: File[]): Promise<string[]> {
+  const paths: string[] = [];
+  for (const file of files) {
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+    const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from("listing-photos").upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+    if (error) throw error;
+    paths.push(path);
+  }
+  return paths;
+}
+
+export async function resolveListingPhotoUrls(paths: string[] | null): Promise<string[]> {
+  if (!paths || paths.length === 0) return [];
+  const remote = paths.filter((p) => p.startsWith("http"));
+  const stored = paths.filter((p) => !p.startsWith("http"));
+  if (stored.length === 0) return remote;
+  const { data, error } = await supabase.storage
+    .from("listing-photos")
+    .createSignedUrls(stored, 60 * 60);
+  if (error) return remote;
+  return [...remote, ...(data ?? []).map((item) => item.signedUrl).filter(Boolean)];
+}
+
 export async function resolveAvatarUrl(path: string | null): Promise<string | null> {
   if (!path) return null;
   if (path.startsWith("http")) return path;

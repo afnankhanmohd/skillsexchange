@@ -215,6 +215,32 @@ function SkillDetailPage() {
             {skill.description}
           </p>
 
+          {(skill.photos?.length ?? 0) > 0 ? (
+            <section className="mt-6">
+              <h2 className="text-sm font-semibold">Photos</h2>
+              {photosQuery.isLoading ? (
+                <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {skill.photos.map((path) => (
+                    <Skeleton key={path} className="aspect-4/3 w-full rounded-xl" />
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {(photosQuery.data ?? []).map((url, index) => (
+                    <a key={url} href={url} target="_blank" rel="noreferrer">
+                      <img
+                        src={url}
+                        alt={`${skill.title} sample ${index + 1}`}
+                        loading="lazy"
+                        className="aspect-4/3 w-full rounded-xl border border-border object-cover transition hover:opacity-90"
+                      />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </section>
+          ) : null}
+
           {skill.help_offered ? (
             <section className="mt-6">
               <h2 className="text-sm font-semibold">What they can help with</h2>

@@ -180,7 +180,10 @@ export async function resolveListingPhotoUrls(paths: string[] | null): Promise<s
     .from("listing-photos")
     .createSignedUrls(stored, 60 * 60);
   if (error) return remote;
-  return [...remote, ...(data ?? []).map((item) => item.signedUrl).filter(Boolean)];
+  const signed = (data ?? [])
+    .map((item) => item.signedUrl)
+    .filter((url): url is string => typeof url === "string" && url.length > 0);
+  return [...remote, ...signed];
 }
 
 export async function resolveAvatarUrl(path: string | null): Promise<string | null> {

@@ -18,6 +18,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadListingPhotos } from "@/lib/api";
 import {
   EXCHANGE_PREFERENCES,
   EXPERIENCE_LEVELS,
@@ -67,6 +68,7 @@ function NewSkillPage() {
   const [level, setLevel] = useState<string>("Intermediate");
   const [exchange, setExchange] = useState<string>("Either");
   const [mode, setMode] = useState<string>("Remote");
+  const [files, setFiles] = useState<File[]>([]);
 
   const createMutation = useMutation({
     mutationFn: async (values: z.infer<typeof schema>) => {

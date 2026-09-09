@@ -114,6 +114,44 @@ function SkillDetailPage() {
 
   const skill = skillQuery.data;
   const isSaved = !!(skill && savedQuery.data?.skillIds.has(skill.id));
+  const isOwner = !!(user && skill && skill.user_id === user.id && !skill.isSample);
+
+  const photosQuery = useQuery({
+    queryKey: ["skill-photos", skillId, skill?.photos],
+    enabled: !!skill && (skill.photos?.length ?? 0) > 0,
+    queryFn: () => resolveListingPhotoUrls(skill?.photos ?? []),
+  });
+
+  const inboxQuery = useQuery({
+    queryKey: ["skill-inquiries", skillId],
+    enabled: isOwner,
+    queryFn: () => fetchSkillInquiries(skillId),
+  });
+
+  useEffect(() => {
+    if (!isOwner) return;
+    const channel = supabase
+      .channel(`listing-inbox-${skillId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "inquiries", filter: `skill_id=eq.${skillId}` },
+        () => queryClient.invalidateQueries({ queryKey: ["skill-inquiries", skillId] }),
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [isOwner, skillId, queryClient]);
+
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) => updateInquiryStatus(id, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["skill-inquiries", skillId] });
+      queryClient.invalidateQueries({ queryKey: ["inquiries", user?.id] });
+      toast.success("Inquiry updated");
+    },
+    onError: (error) => toast.error("Could not update inquiry", { description: error.message }),
+  });
 
   const saveMutation = useMutation({
     mutationFn: () => toggleSaved(user!.id, skill!.id, isSaved),

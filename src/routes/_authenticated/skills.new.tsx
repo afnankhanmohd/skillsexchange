@@ -206,6 +206,34 @@ function NewSkillPage() {
           />
         </div>
 
+        <div className="space-y-1.5">
+          <Label htmlFor="photos">Photos (optional, up to 5)</Label>
+          <Input
+            id="photos"
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(event) => setFiles(Array.from(event.target.files ?? []).slice(0, 5))}
+          />
+          <p className="text-xs text-muted-foreground">
+            {files.length > 0
+              ? `${files.length} photo${files.length > 1 ? "s" : ""} ready to upload`
+              : "Add screenshots or samples of your work — max 5 MB each."}
+          </p>
+          {files.length > 0 ? (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {files.map((file) => (
+                <img
+                  key={file.name}
+                  src={URL.createObjectURL(file)}
+                  alt={file.name}
+                  className="size-16 rounded-lg border border-border object-cover"
+                />
+              ))}
+            </div>
+          ) : null}
+        </div>
+
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label>Exchange preference</Label>

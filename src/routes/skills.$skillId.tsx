@@ -176,7 +176,10 @@ function SkillDetailPage() {
       setMessage("");
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["inquiries", user?.id] });
-      toast.success("Inquiry sent", { description: "You'll see replies in your dashboard." });
+      queryClient.invalidateQueries({ queryKey: ["skill-inquiries", skillId] });
+      toast.success("Inquiry sent", {
+        description: "It landed in this listing's inbox — replies show in your dashboard.",
+      });
     },
     onError: (error) => toast.error("Inquiry not sent", { description: error.message }),
   });

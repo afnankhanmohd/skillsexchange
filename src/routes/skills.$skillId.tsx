@@ -386,6 +386,94 @@ function SkillDetailPage() {
           </div>
         </aside>
       </div>
+
+      {isOwner ? (
+        <section className="card-surface mt-6 p-6">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="flex items-center gap-2 text-base font-semibold">
+              <Inbox className="size-4 text-muted-foreground" /> Inbox for this listing
+            </h2>
+            {inboxQuery.isFetching ? (
+              <Loader2 className="size-4 animate-spin text-muted-foreground" />
+            ) : (
+              <span className="text-xs text-muted-foreground">
+                {inboxQuery.data?.length ?? 0} inquir{(inboxQuery.data?.length ?? 0) === 1 ? "y" : "ies"}
+              </span>
+            )}
+          </div>
+
+          {inboxQuery.isLoading ? (
+            <div className="mt-4 space-y-3">
+              <Skeleton className="h-20 w-full rounded-xl" />
+              <Skeleton className="h-20 w-full rounded-xl" />
+            </div>
+          ) : inboxQuery.isError ? (
+            <div className="mt-4 space-y-2">
+              <p className="text-sm text-destructive">We couldn't load this inbox.</p>
+              <Button size="sm" variant="outline" onClick={() => void inboxQuery.refetch()}>
+                Try again
+              </Button>
+            </div>
+          ) : (inboxQuery.data?.length ?? 0) === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">
+              No inquiries yet. They will appear here the moment someone reaches out.
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {inboxQuery.data!.map((inquiry) => (
+                <li key={inquiry.id} className="rounded-xl border border-border p-4">
+                  <div className="flex items-start gap-3">
+                    <UserAvatar
+                      name={inquiry.sender?.full_name ?? "Student"}
+                      avatarPath={inquiry.sender?.avatar_url ?? null}
+                      className="size-9"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="truncate text-sm font-semibold">
+                          {inquiry.sender?.full_name ?? "Student"}
+                        </p>
+                        <Chip tone={inquiry.status === "accepted" ? "accent" : "neutral"}>
+                          {inquiry.status}
+                        </Chip>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(inquiry.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="mt-1.5 text-sm whitespace-pre-line text-muted-foreground">
+                        {inquiry.message}
+                      </p>
+                      {inquiry.status === "new" ? (
+                        <div className="mt-3 flex gap-2">
+                          <Button
+                            size="sm"
+                            disabled={statusMutation.isPending}
+                            onClick={() =>
+                              statusMutation.mutate({ id: inquiry.id, status: "accepted" })
+                            }
+                          >
+                            <Check className="size-4" /> Accept
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={statusMutation.isPending}
+                            onClick={() =>
+                              statusMutation.mutate({ id: inquiry.id, status: "declined" })
+                            }
+                          >
+                            <X className="size-4" /> Decline
+                          </Button>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -4,15 +4,18 @@ import {
   ArrowLeft,
   Bookmark,
   BookmarkCheck,
+  Check,
   Clock,
   Globe,
   Handshake,
+  Inbox,
   Linkedin,
   Loader2,
   MapPin,
   Send,
+  X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Chip } from "@/components/Chip";
@@ -33,7 +36,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { fetchSavedItems, fetchSkill, toggleSaved } from "@/lib/api";
+import {
+  fetchSavedItems,
+  fetchSkill,
+  fetchSkillInquiries,
+  resolveListingPhotoUrls,
+  toggleSaved,
+  updateInquiryStatus,
+} from "@/lib/api";
 import { sampleSkills } from "@/lib/sample-data";
 import type { Skill } from "@/lib/types";
 
@@ -104,6 +114,44 @@ function SkillDetailPage() {
 
   const skill = skillQuery.data;
   const isSaved = !!(skill && savedQuery.data?.skillIds.has(skill.id));
+  const isOwner = !!(user && skill && skill.user_id === user.id && !skill.isSample);
+
+  const photosQuery = useQuery({
+    queryKey: ["skill-photos", skillId, skill?.photos],
+    enabled: !!skill && (skill.photos?.length ?? 0) > 0,
+    queryFn: () => resolveListingPhotoUrls(skill?.photos ?? []),
+  });
+
+  const inboxQuery = useQuery({
+    queryKey: ["skill-inquiries", skillId],
+    enabled: isOwner,
+    queryFn: () => fetchSkillInquiries(skillId),
+  });
+
+  useEffect(() => {
+    if (!isOwner) return;
+    const channel = supabase
+      .channel(`listing-inbox-${skillId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "inquiries", filter: `skill_id=eq.${skillId}` },
+        () => queryClient.invalidateQueries({ queryKey: ["skill-inquiries", skillId] }),
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [isOwner, skillId, queryClient]);
+
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) => updateInquiryStatus(id, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["skill-inquiries", skillId] });
+      queryClient.invalidateQueries({ queryKey: ["inquiries", user?.id] });
+      toast.success("Inquiry updated");
+    },
+    onError: (error) => toast.error("Could not update inquiry", { description: error.message }),
+  });
 
   const saveMutation = useMutation({
     mutationFn: () => toggleSaved(user!.id, skill!.id, isSaved),
@@ -128,7 +176,10 @@ function SkillDetailPage() {
       setMessage("");
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["inquiries", user?.id] });
-      toast.success("Inquiry sent", { description: "You'll see replies in your dashboard." });
+      queryClient.invalidateQueries({ queryKey: ["skill-inquiries", skillId] });
+      toast.success("Inquiry sent", {
+        description: "It landed in this listing's inbox — replies show in your dashboard.",
+      });
     },
     onError: (error) => toast.error("Inquiry not sent", { description: error.message }),
   });
@@ -163,6 +214,32 @@ function SkillDetailPage() {
           <p className="mt-4 text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
             {skill.description}
           </p>
+
+          {(skill.photos?.length ?? 0) > 0 ? (
+            <section className="mt-6">
+              <h2 className="text-sm font-semibold">Photos</h2>
+              {photosQuery.isLoading ? (
+                <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {skill.photos.map((path) => (
+                    <Skeleton key={path} className="aspect-4/3 w-full rounded-xl" />
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {(photosQuery.data ?? []).map((url, index) => (
+                    <a key={url} href={url} target="_blank" rel="noreferrer">
+                      <img
+                        src={url}
+                        alt={`${skill.title} sample ${index + 1}`}
+                        loading="lazy"
+                        className="aspect-4/3 w-full rounded-xl border border-border object-cover transition hover:opacity-90"
+                      />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </section>
+          ) : null}
 
           {skill.help_offered ? (
             <section className="mt-6">
@@ -309,6 +386,94 @@ function SkillDetailPage() {
           </div>
         </aside>
       </div>
+
+      {isOwner ? (
+        <section className="card-surface mt-6 p-6">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="flex items-center gap-2 text-base font-semibold">
+              <Inbox className="size-4 text-muted-foreground" /> Inbox for this listing
+            </h2>
+            {inboxQuery.isFetching ? (
+              <Loader2 className="size-4 animate-spin text-muted-foreground" />
+            ) : (
+              <span className="text-xs text-muted-foreground">
+                {inboxQuery.data?.length ?? 0} inquir{(inboxQuery.data?.length ?? 0) === 1 ? "y" : "ies"}
+              </span>
+            )}
+          </div>
+
+          {inboxQuery.isLoading ? (
+            <div className="mt-4 space-y-3">
+              <Skeleton className="h-20 w-full rounded-xl" />
+              <Skeleton className="h-20 w-full rounded-xl" />
+            </div>
+          ) : inboxQuery.isError ? (
+            <div className="mt-4 space-y-2">
+              <p className="text-sm text-destructive">We couldn't load this inbox.</p>
+              <Button size="sm" variant="outline" onClick={() => void inboxQuery.refetch()}>
+                Try again
+              </Button>
+            </div>
+          ) : (inboxQuery.data?.length ?? 0) === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">
+              No inquiries yet. They will appear here the moment someone reaches out.
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {inboxQuery.data!.map((inquiry) => (
+                <li key={inquiry.id} className="rounded-xl border border-border p-4">
+                  <div className="flex items-start gap-3">
+                    <UserAvatar
+                      name={inquiry.sender?.full_name ?? "Student"}
+                      avatarPath={inquiry.sender?.avatar_url ?? null}
+                      className="size-9"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="truncate text-sm font-semibold">
+                          {inquiry.sender?.full_name ?? "Student"}
+                        </p>
+                        <Chip tone={inquiry.status === "accepted" ? "accent" : "neutral"}>
+                          {inquiry.status}
+                        </Chip>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(inquiry.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="mt-1.5 text-sm whitespace-pre-line text-muted-foreground">
+                        {inquiry.message}
+                      </p>
+                      {inquiry.status === "new" ? (
+                        <div className="mt-3 flex gap-2">
+                          <Button
+                            size="sm"
+                            disabled={statusMutation.isPending}
+                            onClick={() =>
+                              statusMutation.mutate({ id: inquiry.id, status: "accepted" })
+                            }
+                          >
+                            <Check className="size-4" /> Accept
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={statusMutation.isPending}
+                            onClick={() =>
+                              statusMutation.mutate({ id: inquiry.id, status: "declined" })
+                            }
+                          >
+                            <X className="size-4" /> Decline
+                          </Button>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -18,6 +18,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadListingPhotos } from "@/lib/api";
 import {
   EXCHANGE_PREFERENCES,
   EXPERIENCE_LEVELS,
@@ -67,29 +68,38 @@ function NewSkillPage() {
   const [level, setLevel] = useState<string>("Intermediate");
   const [exchange, setExchange] = useState<string>("Either");
   const [mode, setMode] = useState<string>("Remote");
+  const [files, setFiles] = useState<File[]>([]);
 
   const createMutation = useMutation({
     mutationFn: async (values: z.infer<typeof schema>) => {
       if (!user) throw new Error("Not signed in");
-      const { error } = await supabase.from("skills").insert({
-        user_id: user.id,
-        title: values.title,
-        category: values.category,
-        description: values.description,
-        experience_level: values.experience_level,
-        exchange_preference: values.exchange_preference,
-        work_mode: values.work_mode,
-        help_offered: values.help_offered || null,
-        location: values.location || null,
-        availability: values.availability || null,
-      });
+      const photos = files.length > 0 ? await uploadListingPhotos(user.id, files) : [];
+      const { data, error } = await supabase
+        .from("skills")
+        .insert({
+          photos,
+          user_id: user.id,
+          title: values.title,
+          category: values.category,
+          description: values.description,
+          experience_level: values.experience_level,
+          exchange_preference: values.exchange_preference,
+          work_mode: values.work_mode,
+          help_offered: values.help_offered || null,
+          location: values.location || null,
+          availability: values.availability || null,
+        })
+        .select("id")
+        .single();
       if (error) throw error;
+      return data.id as string;
     },
-    onSuccess: () => {
+    onSuccess: (skillId) => {
       queryClient.invalidateQueries({ queryKey: ["my-skills", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["skills"] });
+      setFiles([]);
       toast.success("Skill published", { description: "Students can now discover it." });
-      void navigate({ to: "/dashboard" });
+      void navigate({ to: "/skills/$skillId", params: { skillId } });
     },
     onError: (error) =>
       toast.error("Could not publish your skill", {
@@ -194,6 +204,34 @@ function NewSkillPage() {
             rows={3}
             placeholder="e.g. Landing pages, component libraries, code reviews"
           />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="photos">Photos (optional, up to 5)</Label>
+          <Input
+            id="photos"
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(event) => setFiles(Array.from(event.target.files ?? []).slice(0, 5))}
+          />
+          <p className="text-xs text-muted-foreground">
+            {files.length > 0
+              ? `${files.length} photo${files.length > 1 ? "s" : ""} ready to upload`
+              : "Add screenshots or samples of your work — max 5 MB each."}
+          </p>
+          {files.length > 0 ? (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {files.map((file) => (
+                <img
+                  key={file.name}
+                  src={URL.createObjectURL(file)}
+                  alt={file.name}
+                  className="size-16 rounded-lg border border-border object-cover"
+                />
+              ))}
+            </div>
+          ) : null}
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">

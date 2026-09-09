@@ -1,0 +1,1 @@
+ALTER TABLE public.skills ADD COLUMN IF NOT EXISTS photos text[] NOT NULL DEFAULT '{}'::text[];

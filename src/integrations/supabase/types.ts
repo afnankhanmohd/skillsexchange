@@ -358,6 +358,7 @@ export type Database = {
           id: string
           is_active: boolean
           location: string | null
+          photos: string[]
           title: string
           updated_at: string
           user_id: string
@@ -374,6 +375,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           location?: string | null
+          photos?: string[]
           title: string
           updated_at?: string
           user_id: string
@@ -390,6 +392,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           location?: string | null
+          photos?: string[]
           title?: string
           updated_at?: string
           user_id?: string

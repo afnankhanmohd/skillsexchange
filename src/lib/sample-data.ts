@@ -51,6 +51,7 @@ function skill(
     location: data.location ?? profile.location,
     availability: data.availability ?? "Weekends",
     is_active: true,
+    photos: data.photos ?? [],
     created_at: daysAgo(index + 1),
     updated_at: daysAgo(index + 1),
     profile,

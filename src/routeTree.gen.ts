@@ -23,6 +23,7 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as SkillsIndexRouteImport } from './routes/skills.index'
 import { Route as SkillsSkillIdRouteImport } from './routes/skills.$skillId'
 import { Route as AuthenticatedSkillsNewRouteImport } from './routes/_authenticated/skills.new'
+import { Route as AuthenticatedSkillsSkillIdEditRouteImport } from './routes/_authenticated/skills.$skillId.edit'
 import { Route as AuthenticatedSkillsSkillIdInboxRouteImport } from './routes/_authenticated/skills.$skillId.inbox'
 
 const IndexRoute = IndexRouteImport.update({
@@ -94,6 +95,12 @@ const AuthenticatedSkillsNewRoute = AuthenticatedSkillsNewRouteImport.update({
   path: '/skills/new',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSkillsSkillIdEditRoute =
+  AuthenticatedSkillsSkillIdEditRouteImport.update({
+    id: '/skills/$skillId/edit',
+    path: '/skills/$skillId/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSkillsSkillIdInboxRoute =
   AuthenticatedSkillsSkillIdInboxRouteImport.update({
     id: '/skills/$skillId/inbox',
@@ -115,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/skills/$skillId': typeof SkillsSkillIdRoute
   '/skills/': typeof SkillsIndexRoute
   '/skills/new': typeof AuthenticatedSkillsNewRoute
+  '/skills/$skillId/edit': typeof AuthenticatedSkillsSkillIdEditRoute
   '/skills/$skillId/inbox': typeof AuthenticatedSkillsSkillIdInboxRoute
 }
 export interface FileRoutesByTo {
@@ -131,6 +139,7 @@ export interface FileRoutesByTo {
   '/skills/$skillId': typeof SkillsSkillIdRoute
   '/skills': typeof SkillsIndexRoute
   '/skills/new': typeof AuthenticatedSkillsNewRoute
+  '/skills/$skillId/edit': typeof AuthenticatedSkillsSkillIdEditRoute
   '/skills/$skillId/inbox': typeof AuthenticatedSkillsSkillIdInboxRoute
 }
 export interface FileRoutesById {
@@ -149,6 +158,7 @@ export interface FileRoutesById {
   '/skills/$skillId': typeof SkillsSkillIdRoute
   '/skills/': typeof SkillsIndexRoute
   '/_authenticated/skills/new': typeof AuthenticatedSkillsNewRoute
+  '/_authenticated/skills/$skillId/edit': typeof AuthenticatedSkillsSkillIdEditRoute
   '/_authenticated/skills/$skillId/inbox': typeof AuthenticatedSkillsSkillIdInboxRoute
 }
 export interface FileRouteTypes {
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/skills/$skillId'
     | '/skills/'
     | '/skills/new'
+    | '/skills/$skillId/edit'
     | '/skills/$skillId/inbox'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/skills/$skillId'
     | '/skills'
     | '/skills/new'
+    | '/skills/$skillId/edit'
     | '/skills/$skillId/inbox'
   id:
     | '__root__'
@@ -200,6 +212,7 @@ export interface FileRouteTypes {
     | '/skills/$skillId'
     | '/skills/'
     | '/_authenticated/skills/new'
+    | '/_authenticated/skills/$skillId/edit'
     | '/_authenticated/skills/$skillId/inbox'
   fileRoutesById: FileRoutesById
 }
@@ -316,6 +329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSkillsNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/skills/$skillId/edit': {
+      id: '/_authenticated/skills/$skillId/edit'
+      path: '/skills/$skillId/edit'
+      fullPath: '/skills/$skillId/edit'
+      preLoaderRoute: typeof AuthenticatedSkillsSkillIdEditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/skills/$skillId/inbox': {
       id: '/_authenticated/skills/$skillId/inbox'
       path: '/skills/$skillId/inbox'
@@ -331,6 +351,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSkillsNewRoute: typeof AuthenticatedSkillsNewRoute
+  AuthenticatedSkillsSkillIdEditRoute: typeof AuthenticatedSkillsSkillIdEditRoute
   AuthenticatedSkillsSkillIdInboxRoute: typeof AuthenticatedSkillsSkillIdInboxRoute
 }
 
@@ -339,6 +360,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSkillsNewRoute: AuthenticatedSkillsNewRoute,
+  AuthenticatedSkillsSkillIdEditRoute: AuthenticatedSkillsSkillIdEditRoute,
   AuthenticatedSkillsSkillIdInboxRoute: AuthenticatedSkillsSkillIdInboxRoute,
 }
 

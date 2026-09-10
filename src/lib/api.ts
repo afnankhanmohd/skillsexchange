@@ -186,6 +186,89 @@ export async function resolveListingPhotoUrls(paths: string[] | null): Promise<s
   return [...remote, ...signed];
 }
 
+export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+
+export function validateImageFiles(files: File[]) {
+  for (const file of files) {
+    if (!file.type.startsWith("image/")) {
+      throw new Error(`${file.name} is not an image file.`);
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      throw new Error(`${file.name} is larger than 5 MB.`);
+    }
+  }
+}
+
+export async function updateSkill(
+  id: string,
+  values: Partial<Tables<"skills">> & { photos?: string[] },
+) {
+  const { error } = await supabase.from("skills").update(values).eq("id", id);
+  if (error) throw error;
+}
+
+export async function removeListingPhoto(skillId: string, photos: string[], path: string) {
+  const next = photos.filter((item) => item !== path);
+  await updateSkill(skillId, { photos: next });
+  if (!path.startsWith("http")) {
+    await supabase.storage.from("listing-photos").remove([path]);
+  }
+  return next;
+}
+
+export type SkillApplication = Tables<"skill_applications"> & {
+  applicant: { id: string; full_name: string; avatar_url: string | null } | null;
+};
+
+export async function fetchSkillApplications(skillId: string): Promise<SkillApplication[]> {
+  const { data, error } = await supabase
+    .from("skill_applications")
+    .select(`*, applicant:profiles!skill_applications_applicant_id_fkey(id, full_name, avatar_url)`)
+    .eq("skill_id", skillId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as unknown as SkillApplication[];
+}
+
+export async function uploadResume(userId: string, file: File): Promise<string> {
+  if (file.size > MAX_UPLOAD_BYTES) throw new Error("Your resume must be under 5 MB.");
+  const allowed = ["pdf", "doc", "docx"];
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+  if (!allowed.includes(ext)) throw new Error("Upload your resume as a PDF or Word document.");
+  const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from("resumes").upload(path, file, { upsert: false });
+  if (error) throw error;
+  return path;
+}
+
+export async function resolveResumeUrl(path: string | null): Promise<string | null> {
+  if (!path) return null;
+  const { data, error } = await supabase.storage.from("resumes").createSignedUrl(path, 60 * 60);
+  if (error) return null;
+  return data.signedUrl;
+}
+
+export async function createSkillApplication(input: {
+  skillId: string;
+  applicantId: string;
+  coverLetter: string;
+  resume: File | null;
+}) {
+  const resumePath = input.resume ? await uploadResume(input.applicantId, input.resume) : null;
+  const { error } = await supabase.from("skill_applications").insert({
+    skill_id: input.skillId,
+    applicant_id: input.applicantId,
+    cover_letter: input.coverLetter,
+    resume_path: resumePath,
+  });
+  if (error) throw error;
+}
+
+export async function updateApplicationStatus(id: string, status: string) {
+  const { error } = await supabase.from("skill_applications").update({ status }).eq("id", id);
+  if (error) throw error;
+}
+
 export async function resolveAvatarUrl(path: string | null): Promise<string | null> {
   if (!path) return null;
   if (path.startsWith("http")) return path;

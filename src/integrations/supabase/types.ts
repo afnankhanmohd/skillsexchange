@@ -346,6 +346,54 @@ export type Database = {
           },
         ]
       }
+      skill_applications: {
+        Row: {
+          applicant_id: string
+          cover_letter: string
+          created_at: string
+          id: string
+          resume_path: string | null
+          skill_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          applicant_id: string
+          cover_letter: string
+          created_at?: string
+          id?: string
+          resume_path?: string | null
+          skill_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          applicant_id?: string
+          cover_letter?: string
+          created_at?: string
+          id?: string
+          resume_path?: string | null
+          skill_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_applications_applicant_id_fkey"
+            columns: ["applicant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "skill_applications_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       skills: {
         Row: {
           availability: string | null

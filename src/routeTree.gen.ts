@@ -23,6 +23,7 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as SkillsIndexRouteImport } from './routes/skills.index'
 import { Route as SkillsSkillIdRouteImport } from './routes/skills.$skillId'
 import { Route as AuthenticatedSkillsNewRouteImport } from './routes/_authenticated/skills.new'
+import { Route as AuthenticatedSkillsSkillIdInboxRouteImport } from './routes/_authenticated/skills.$skillId.inbox'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -93,6 +94,12 @@ const AuthenticatedSkillsNewRoute = AuthenticatedSkillsNewRouteImport.update({
   path: '/skills/new',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSkillsSkillIdInboxRoute =
+  AuthenticatedSkillsSkillIdInboxRouteImport.update({
+    id: '/skills/$skillId/inbox',
+    path: '/skills/$skillId/inbox',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/skills/$skillId': typeof SkillsSkillIdRoute
   '/skills/': typeof SkillsIndexRoute
   '/skills/new': typeof AuthenticatedSkillsNewRoute
+  '/skills/$skillId/inbox': typeof AuthenticatedSkillsSkillIdInboxRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -123,6 +131,7 @@ export interface FileRoutesByTo {
   '/skills/$skillId': typeof SkillsSkillIdRoute
   '/skills': typeof SkillsIndexRoute
   '/skills/new': typeof AuthenticatedSkillsNewRoute
+  '/skills/$skillId/inbox': typeof AuthenticatedSkillsSkillIdInboxRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -140,6 +149,7 @@ export interface FileRoutesById {
   '/skills/$skillId': typeof SkillsSkillIdRoute
   '/skills/': typeof SkillsIndexRoute
   '/_authenticated/skills/new': typeof AuthenticatedSkillsNewRoute
+  '/_authenticated/skills/$skillId/inbox': typeof AuthenticatedSkillsSkillIdInboxRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -157,6 +167,7 @@ export interface FileRouteTypes {
     | '/skills/$skillId'
     | '/skills/'
     | '/skills/new'
+    | '/skills/$skillId/inbox'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | '/skills/$skillId'
     | '/skills'
     | '/skills/new'
+    | '/skills/$skillId/inbox'
   id:
     | '__root__'
     | '/'
@@ -188,6 +200,7 @@ export interface FileRouteTypes {
     | '/skills/$skillId'
     | '/skills/'
     | '/_authenticated/skills/new'
+    | '/_authenticated/skills/$skillId/inbox'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -303,6 +316,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSkillsNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/skills/$skillId/inbox': {
+      id: '/_authenticated/skills/$skillId/inbox'
+      path: '/skills/$skillId/inbox'
+      fullPath: '/skills/$skillId/inbox'
+      preLoaderRoute: typeof AuthenticatedSkillsSkillIdInboxRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -311,6 +331,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSkillsNewRoute: typeof AuthenticatedSkillsNewRoute
+  AuthenticatedSkillsSkillIdInboxRoute: typeof AuthenticatedSkillsSkillIdInboxRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -318,6 +339,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSkillsNewRoute: AuthenticatedSkillsNewRoute,
+  AuthenticatedSkillsSkillIdInboxRoute: AuthenticatedSkillsSkillIdInboxRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

@@ -269,6 +269,49 @@ export async function updateApplicationStatus(id: string, status: string) {
   if (error) throw error;
 }
 
+export type MyApplication = Tables<"skill_applications"> & {
+  skill: { id: string; title: string; category: string; user_id: string } | null;
+};
+
+export async function fetchMyApplications(userId: string): Promise<MyApplication[]> {
+  const { data, error } = await supabase
+    .from("skill_applications")
+    .select(`*, skill:skills(id, title, category, user_id)`)
+    .eq("applicant_id", userId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as unknown as MyApplication[];
+}
+
+export type ListingCounts = Record<string, { newCount: number; total: number }>;
+
+/** New + total inquiry and application counts per listing, for dashboard badges. */
+export async function fetchListingInboxCounts(skillIds: string[]): Promise<ListingCounts> {
+  const counts: ListingCounts = {};
+  if (skillIds.length === 0) return counts;
+  for (const id of skillIds) counts[id] = { newCount: 0, total: 0 };
+
+  const [inquiries, applications] = await Promise.all([
+    supabase.from("inquiries").select("skill_id, status").in("skill_id", skillIds),
+    supabase.from("skill_applications").select("skill_id, status").in("skill_id", skillIds),
+  ]);
+  if (inquiries.error) throw inquiries.error;
+  if (applications.error) throw applications.error;
+
+  const rows = [...(inquiries.data ?? []), ...(applications.data ?? [])] as {
+    skill_id: string | null;
+    status: string;
+  }[];
+  for (const row of rows) {
+    if (!row.skill_id) continue;
+    const entry = counts[row.skill_id];
+    if (!entry) continue;
+    entry.total += 1;
+    if (row.status === "new" || row.status === "pending") entry.newCount += 1;
+  }
+  return counts;
+}
+
 export async function resolveAvatarUrl(path: string | null): Promise<string | null> {
   if (!path) return null;
   if (path.startsWith("http")) return path;

@@ -8,10 +8,12 @@ import {
   Clock,
   Globe,
   Handshake,
+  FileText,
   Inbox,
   Linkedin,
   Loader2,
   MapPin,
+  Pencil,
   Send,
   X,
 } from "lucide-react";

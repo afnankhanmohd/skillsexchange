@@ -97,6 +97,9 @@ function SkillDetailPage() {
   const queryClient = useQueryClient();
   const [message, setMessage] = useState("");
   const [open, setOpen] = useState(false);
+  const [applyOpen, setApplyOpen] = useState(false);
+  const [coverLetter, setCoverLetter] = useState("");
+  const [resume, setResume] = useState<File | null>(null);
 
   const skillQuery = useQuery({
     queryKey: ["skill", skillId],

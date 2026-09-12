@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Bookmark, Inbox, Plus, Sparkles, UserCog } from "lucide-react";
+import { Bookmark, FileText, Inbox, Pencil, Plus, Sparkles, UserCog } from "lucide-react";
 import { toast } from "sonner";
 
 import { CardSkeletonGrid } from "@/components/CardSkeleton";

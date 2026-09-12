@@ -393,6 +393,76 @@ function SkillDetailPage() {
                   </DialogContent>
                 </Dialog>
 
+                {skill.user_id === user.id ? (
+                  <>
+                    <Button asChild variant="outline" className="w-full">
+                      <Link to="/skills/$skillId/inbox" params={{ skillId: skill.id }}>
+                        <Inbox className="size-4" /> Open full inbox
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outline" className="w-full">
+                      <Link to="/skills/$skillId/edit" params={{ skillId: skill.id }}>
+                        <Pencil className="size-4" /> Edit listing
+                      </Link>
+                    </Button>
+                  </>
+                ) : (
+                  <Dialog open={applyOpen} onOpenChange={setApplyOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="w-full">
+                        <FileText className="size-4" /> Apply with resume
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Apply to this listing</DialogTitle>
+                        <DialogDescription>
+                          Write a short cover letter and attach your resume. It lands straight in{" "}
+                          {skill.profile?.full_name ?? "this student"}'s inbox.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="cover-letter">Cover letter</Label>
+                          <Textarea
+                            id="cover-letter"
+                            rows={6}
+                            value={coverLetter}
+                            onChange={(event) => setCoverLetter(event.target.value)}
+                            placeholder="Why you're a good fit, and what you're hoping to learn…"
+                          />
+                          {coverLetter.trim().length > 0 && coverLetter.trim().length < 30 ? (
+                            <p className="text-xs text-destructive">Write at least 30 characters.</p>
+                          ) : null}
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label htmlFor="resume-file">Resume (PDF or Word, up to 5 MB)</Label>
+                          <Input
+                            id="resume-file"
+                            type="file"
+                            accept=".pdf,.doc,.docx"
+                            onChange={(event) => setResume(event.target.files?.[0] ?? null)}
+                          />
+                          {resume ? (
+                            <p className="text-xs text-muted-foreground">{resume.name}</p>
+                          ) : null}
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          onClick={() => applyMutation.mutate()}
+                          disabled={coverLetter.trim().length < 30 || applyMutation.isPending}
+                        >
+                          {applyMutation.isPending ? (
+                            <Loader2 className="size-4 animate-spin" />
+                          ) : null}
+                          Send application
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                )}
+
                 <Button
                   variant="outline"
                   className="w-full"

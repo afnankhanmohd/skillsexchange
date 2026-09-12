@@ -37,6 +37,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  createSkillApplication,
   fetchSavedItems,
   fetchSkill,
   fetchSkillInquiries,

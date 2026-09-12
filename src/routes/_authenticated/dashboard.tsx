@@ -63,6 +63,13 @@ function DashboardPage() {
     queryFn: () => fetchInquiries(userId),
   });
 
+  const skillIds = (skillsQuery.data ?? []).map((skill) => skill.id);
+  const countsQuery = useQuery({
+    queryKey: ["listing-counts", userId, skillIds],
+    enabled: skillIds.length > 0,
+    queryFn: () => fetchListingInboxCounts(skillIds),
+  });
+
   const queryClient = useQueryClient();
 
   const unsaveMutation = useMutation({

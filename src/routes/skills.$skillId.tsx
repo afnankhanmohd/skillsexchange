@@ -187,6 +187,27 @@ function SkillDetailPage() {
     onError: (error) => toast.error("Inquiry not sent", { description: error.message }),
   });
 
+  const applyMutation = useMutation({
+    mutationFn: () =>
+      createSkillApplication({
+        skillId: skill!.id,
+        applicantId: user!.id,
+        coverLetter: coverLetter.trim(),
+        resume,
+      }),
+    onSuccess: () => {
+      setCoverLetter("");
+      setResume(null);
+      setApplyOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["skill-applications", skillId] });
+      queryClient.invalidateQueries({ queryKey: ["my-applications", user?.id] });
+      toast.success("Application sent", {
+        description: "Track it any time under My applications.",
+      });
+    },
+    onError: (error) => toast.error("Application not sent", { description: error.message }),
+  });
+
   if (skillQuery.isLoading) {
     return (
       <div className="mx-auto max-w-4xl space-y-4 px-4 py-10">

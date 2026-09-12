@@ -8,10 +8,12 @@ import {
   Clock,
   Globe,
   Handshake,
+  FileText,
   Inbox,
   Linkedin,
   Loader2,
   MapPin,
+  Pencil,
   Send,
   X,
 } from "lucide-react";
@@ -31,12 +33,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  createSkillApplication,
   fetchSavedItems,
   fetchSkill,
   fetchSkillInquiries,
@@ -94,6 +98,9 @@ function SkillDetailPage() {
   const queryClient = useQueryClient();
   const [message, setMessage] = useState("");
   const [open, setOpen] = useState(false);
+  const [applyOpen, setApplyOpen] = useState(false);
+  const [coverLetter, setCoverLetter] = useState("");
+  const [resume, setResume] = useState<File | null>(null);
 
   const skillQuery = useQuery({
     queryKey: ["skill", skillId],
@@ -182,6 +189,27 @@ function SkillDetailPage() {
       });
     },
     onError: (error) => toast.error("Inquiry not sent", { description: error.message }),
+  });
+
+  const applyMutation = useMutation({
+    mutationFn: () =>
+      createSkillApplication({
+        skillId: skill!.id,
+        applicantId: user!.id,
+        coverLetter: coverLetter.trim(),
+        resume,
+      }),
+    onSuccess: () => {
+      setCoverLetter("");
+      setResume(null);
+      setApplyOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["skill-applications", skillId] });
+      queryClient.invalidateQueries({ queryKey: ["my-applications", user?.id] });
+      toast.success("Application sent", {
+        description: "Track it any time under My applications.",
+      });
+    },
+    onError: (error) => toast.error("Application not sent", { description: error.message }),
   });
 
   if (skillQuery.isLoading) {
@@ -365,6 +393,76 @@ function SkillDetailPage() {
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
+
+                {skill.user_id === user.id ? (
+                  <>
+                    <Button asChild variant="outline" className="w-full">
+                      <Link to="/skills/$skillId/inbox" params={{ skillId: skill.id }}>
+                        <Inbox className="size-4" /> Open full inbox
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outline" className="w-full">
+                      <Link to="/skills/$skillId/edit" params={{ skillId: skill.id }}>
+                        <Pencil className="size-4" /> Edit listing
+                      </Link>
+                    </Button>
+                  </>
+                ) : (
+                  <Dialog open={applyOpen} onOpenChange={setApplyOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="w-full">
+                        <FileText className="size-4" /> Apply with resume
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Apply to this listing</DialogTitle>
+                        <DialogDescription>
+                          Write a short cover letter and attach your resume. It lands straight in{" "}
+                          {skill.profile?.full_name ?? "this student"}'s inbox.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="cover-letter">Cover letter</Label>
+                          <Textarea
+                            id="cover-letter"
+                            rows={6}
+                            value={coverLetter}
+                            onChange={(event) => setCoverLetter(event.target.value)}
+                            placeholder="Why you're a good fit, and what you're hoping to learn…"
+                          />
+                          {coverLetter.trim().length > 0 && coverLetter.trim().length < 30 ? (
+                            <p className="text-xs text-destructive">Write at least 30 characters.</p>
+                          ) : null}
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label htmlFor="resume-file">Resume (PDF or Word, up to 5 MB)</Label>
+                          <Input
+                            id="resume-file"
+                            type="file"
+                            accept=".pdf,.doc,.docx"
+                            onChange={(event) => setResume(event.target.files?.[0] ?? null)}
+                          />
+                          {resume ? (
+                            <p className="text-xs text-muted-foreground">{resume.name}</p>
+                          ) : null}
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          onClick={() => applyMutation.mutate()}
+                          disabled={coverLetter.trim().length < 30 || applyMutation.isPending}
+                        >
+                          {applyMutation.isPending ? (
+                            <Loader2 className="size-4 animate-spin" />
+                          ) : null}
+                          Send application
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                )}
 
                 <Button
                   variant="outline"

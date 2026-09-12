@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Bookmark, Inbox, Plus, Sparkles, UserCog } from "lucide-react";
+import { Bookmark, FileText, Inbox, Pencil, Plus, Sparkles, UserCog } from "lucide-react";
 import { toast } from "sonner";
 
 import { CardSkeletonGrid } from "@/components/CardSkeleton";
@@ -61,6 +61,13 @@ function DashboardPage() {
     queryKey: ["inquiries", userId],
     enabled: !!userId,
     queryFn: () => fetchInquiries(userId),
+  });
+
+  const skillIds = (skillsQuery.data ?? []).map((skill) => skill.id);
+  const countsQuery = useQuery({
+    queryKey: ["listing-counts", userId, skillIds],
+    enabled: skillIds.length > 0,
+    queryFn: () => fetchListingInboxCounts(skillIds),
   });
 
   const queryClient = useQueryClient();
@@ -171,9 +178,31 @@ function DashboardPage() {
             <CardSkeletonGrid count={3} />
           ) : skillsQuery.data?.length ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {skillsQuery.data.map((skill) => (
-                <SkillCard key={skill.id} skill={skill} />
-              ))}
+              {skillsQuery.data.map((skill) => {
+                const counts = countsQuery.data?.[skill.id];
+                return (
+                  <div key={skill.id} className="flex flex-col gap-2">
+                    <SkillCard skill={skill} />
+                    <div className="flex gap-2">
+                      <Button asChild size="sm" variant="outline" className="flex-1">
+                        <Link to="/skills/$skillId/inbox" params={{ skillId: skill.id }}>
+                          <Inbox className="size-4" /> Inbox
+                          {counts?.newCount ? (
+                            <Badge variant="secondary">{counts.newCount} new</Badge>
+                          ) : counts?.total ? (
+                            <span className="text-xs text-muted-foreground">({counts.total})</span>
+                          ) : null}
+                        </Link>
+                      </Button>
+                      <Button asChild size="sm" variant="outline" className="flex-1">
+                        <Link to="/skills/$skillId/edit" params={{ skillId: skill.id }}>
+                          <Pencil className="size-4" /> Edit
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <EmptyState

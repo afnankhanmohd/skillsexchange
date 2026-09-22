@@ -15,6 +15,7 @@ import { useRealtimeInvalidate } from "@/hooks/useRealtimeInvalidate";
 import { Badge } from "@/components/ui/badge";
 import {
   fetchInquiries,
+  fetchListingInboxCounts,
   fetchMySkills,
   fetchSavedItems,
   toggleSaved,
@@ -99,9 +100,14 @@ function DashboardPage() {
   const realtimeStatus = useRealtimeInvalidate(
     `dashboard-${userId}`,
     [
-      { table: "skills", filter: `user_id=eq.${userId}`, keys: [["my-skills", userId]] },
+      {
+        table: "skills",
+        filter: `user_id=eq.${userId}`,
+        keys: [["my-skills", userId], ["listing-counts", userId]],
+      },
       { table: "saved_items", filter: `user_id=eq.${userId}`, keys: [["saved", userId]] },
-      { table: "inquiries", keys: [["inquiries", userId]] },
+      { table: "inquiries", keys: [["inquiries", userId], ["listing-counts", userId]] },
+      { table: "skill_applications", keys: [["listing-counts", userId]] },
       { table: "profiles", filter: `id=eq.${userId}`, keys: [["profile", userId]] },
     ],
     !!userId,

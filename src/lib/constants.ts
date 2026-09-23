@@ -19,5 +19,5 @@ export const SUPPORT_EMAIL = "skillsexchange.app@gmail.com";
 export const SOCIAL_LINKS = [
   { label: "Instagram", href: "https://www.instagram.com/skillsexchange.app" },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/skillsexchange-96303043a" },
-  { label: "X", href: "https://x.com" },
+  { label: "X", href: "https://x.com/Skillsexchange2" },
 ];

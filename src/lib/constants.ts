@@ -17,7 +17,7 @@ export const WORK_MODES = ["Remote", "In-person", "Hybrid"] as const;
 
 export const SUPPORT_EMAIL = "skillsexchange.app@gmail.com";
 export const SOCIAL_LINKS = [
-  { label: "Instagram", href: "https://instagram.com" },
+  { label: "Instagram", href: "https://www.instagram.com/skillsexchange.app" },
   { label: "LinkedIn", href: "https://linkedin.com" },
   { label: "X", href: "https://x.com" },
 ];

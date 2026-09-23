@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
+import { signPublicMedia } from "./media.functions";
 import type { Skill } from "./types";
 
 const PROFILE_FIELDS =
@@ -176,14 +177,21 @@ export async function resolveListingPhotoUrls(paths: string[] | null): Promise<s
   const remote = paths.filter((p) => p.startsWith("http"));
   const stored = paths.filter((p) => !p.startsWith("http"));
   if (stored.length === 0) return remote;
-  const { data, error } = await supabase.storage
-    .from("listing-photos")
-    .createSignedUrls(stored, 60 * 60);
-  if (error) return remote;
-  const signed = (data ?? [])
-    .map((item) => item.signedUrl)
-    .filter((url): url is string => typeof url === "string" && url.length > 0);
-  return [...remote, ...signed];
+  const own = await supabase.storage.from("listing-photos").createSignedUrls(stored, 60 * 60);
+  const byPath = new Map<string, string>();
+  for (const item of own.data ?? []) {
+    if (item.path && item.signedUrl && !item.error) byPath.set(item.path, item.signedUrl);
+  }
+  const missing = stored.filter((p) => !byPath.has(p));
+  if (missing.length) {
+    try {
+      const res = await signPublicMedia({ data: { bucket: "listing-photos", paths: missing } });
+      for (const r of res) if (r.url) byPath.set(r.path, r.url);
+    } catch {
+      /* ignore */
+    }
+  }
+  return [...remote, ...stored.map((p) => byPath.get(p)).filter((u): u is string => !!u)];
 }
 
 export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
@@ -315,7 +323,12 @@ export async function fetchListingInboxCounts(skillIds: string[]): Promise<Listi
 export async function resolveAvatarUrl(path: string | null): Promise<string | null> {
   if (!path) return null;
   if (path.startsWith("http")) return path;
-  const { data, error } = await supabase.storage.from("avatars").createSignedUrl(path, 60 * 60);
-  if (error) return null;
-  return data.signedUrl;
+  const own = await supabase.storage.from("avatars").createSignedUrl(path, 60 * 60);
+  if (!own.error) return own.data.signedUrl;
+  try {
+    const res = await signPublicMedia({ data: { bucket: "avatars", paths: [path] } });
+    return res[0]?.url ?? null;
+  } catch {
+    return null;
+  }
 }

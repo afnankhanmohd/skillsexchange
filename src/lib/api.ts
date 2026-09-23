@@ -186,7 +186,7 @@ export async function resolveListingPhotoUrls(paths: string[] | null): Promise<s
   if (missing.length) {
     try {
       const res = await signPublicMedia({ data: { bucket: "listing-photos", paths: missing } });
-      for (const r of res) byPath.set(r.path, r.url);
+      for (const r of res) if (r.url) byPath.set(r.path, r.url);
     } catch {
       /* ignore */
     }

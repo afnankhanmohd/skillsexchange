@@ -22,6 +22,7 @@ import { toast } from "sonner";
 
 import { Chip } from "@/components/Chip";
 import { ContactDetails } from "@/components/ContactDetails";
+import { ShareButtons } from "@/components/ShareButtons";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -233,10 +234,17 @@ function SkillDetailPage() {
 
       <div className="grid gap-6 md:grid-cols-[1.6fr_1fr]">
         <article className="card-surface p-6">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Chip tone="primary">{skill.category}</Chip>
             {skill.experience_level ? <Chip>{skill.experience_level}</Chip> : null}
             {skill.exchange_preference ? <Chip tone="accent">{skill.exchange_preference}</Chip> : null}
+            <div className="ml-auto">
+              <ShareButtons
+                title={skill.title}
+                text={`${skill.profile?.full_name ?? "A student"} can help with "${skill.title}" on skillSExhange`}
+                path={`/skills/${skill.id}`}
+              />
+            </div>
           </div>
           <h1 className="mt-4 text-2xl font-extrabold tracking-tight sm:text-3xl">{skill.title}</h1>
           <p className="mt-4 text-sm leading-relaxed whitespace-pre-line text-muted-foreground">

@@ -8,6 +8,7 @@ import {
   Menu,
   Plus,
   Shield,
+  Sparkles,
   User,
 } from "lucide-react";
 import { useState } from "react";
@@ -213,6 +214,7 @@ export function MobileTabBar() {
   const items = [
     { to: "/", label: "Home", icon: Home },
     { to: "/skills", label: "Skills", icon: Compass },
+    ...(user ? [{ to: "/match", label: "Match", icon: Sparkles } as const] : []),
     user
       ? { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard }
       : { to: "/auth", label: "Sign in", icon: User },

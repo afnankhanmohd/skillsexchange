@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Add username-based student search and public profile details, including Instagram
+- [ ] Explore live teaching calls and a shared multi-sheet whiteboard for skill exchanges
 - [ ] Public student profiles with share buttons
 - [ ] Public job directory and detail pages with share buttons
 - [ ] Verify public profile and job pages in the browser

@@ -254,12 +254,14 @@ export type Database = {
           email: string | null
           full_name: string
           id: string
+          instagram_url: string | null
           linkedin_url: string | null
           location: string | null
           phone: string | null
           portfolio_url: string | null
           role: string
           updated_at: string
+          username: string | null
         }
         Insert: {
           availability?: string | null
@@ -271,12 +273,14 @@ export type Database = {
           email?: string | null
           full_name?: string
           id: string
+          instagram_url?: string | null
           linkedin_url?: string | null
           location?: string | null
           phone?: string | null
           portfolio_url?: string | null
           role?: string
           updated_at?: string
+          username?: string | null
         }
         Update: {
           availability?: string | null
@@ -288,12 +292,14 @@ export type Database = {
           email?: string | null
           full_name?: string
           id?: string
+          instagram_url?: string | null
           linkedin_url?: string | null
           location?: string | null
           phone?: string | null
           portfolio_url?: string | null
           role?: string
           updated_at?: string
+          username?: string | null
         }
         Relationships: []
       }
@@ -346,6 +352,51 @@ export type Database = {
           },
         ]
       }
+      session_strokes: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          kind: string
+          payload: Json
+          session_id: string
+          sheet: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id: string
+          kind: string
+          payload: Json
+          session_id: string
+          sheet?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind?: string
+          payload?: Json
+          session_id?: string
+          sheet?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_strokes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_strokes_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "skill_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       skill_applications: {
         Row: {
           applicant_id: string
@@ -390,6 +441,57 @@ export type Database = {
             columns: ["skill_id"]
             isOneToOne: false
             referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      skill_sessions: {
+        Row: {
+          created_at: string
+          guest_id: string | null
+          host_id: string
+          id: string
+          room_code: string
+          scheduled_at: string | null
+          status: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          guest_id?: string | null
+          host_id: string
+          id?: string
+          room_code: string
+          scheduled_at?: string | null
+          status?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          guest_id?: string | null
+          host_id?: string
+          id?: string
+          room_code?: string
+          scheduled_at?: string | null
+          status?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_sessions_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "skill_sessions_host_id_fkey"
+            columns: ["host_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

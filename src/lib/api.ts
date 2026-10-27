@@ -5,7 +5,7 @@ import { signPublicMedia } from "./media.functions";
 import type { Skill } from "./types";
 
 const PROFILE_FIELDS =
-  "id, full_name, college, location, avatar_url, bio, availability, portfolio_url, linkedin_url";
+  "id, username, full_name, college, location, avatar_url, bio, availability, portfolio_url, linkedin_url";
 
 export async function fetchSkills(): Promise<Skill[]> {
   const { data, error } = await supabase
@@ -83,7 +83,7 @@ export async function toggleSaved(userId: string, itemId: string, isSaved: boole
 
 // `email` is intentionally excluded: it is not readable through the Data API.
 export const PROFILE_SELECT =
-  "id, full_name, college, location, bio, avatar_url, portfolio_url, linkedin_url, availability, role, created_at, updated_at";
+  "id, username, full_name, college, location, bio, avatar_url, portfolio_url, linkedin_url, instagram_url, availability, role, created_at, updated_at";
 
 export async function fetchProfile(id: string) {
   const { data, error } = await supabase

@@ -8,6 +8,7 @@ export type Inquiry = Tables<"inquiries">;
 export type PublicProfile = Pick<
   Profile,
   | "id"
+  | "username"
   | "full_name"
   | "college"
   | "location"
@@ -16,6 +17,7 @@ export type PublicProfile = Pick<
   | "availability"
   | "portfolio_url"
   | "linkedin_url"
+  | "instagram_url"
 >;
 
 export type Skill = SkillRow & { profile: PublicProfile | null; isSample?: boolean };

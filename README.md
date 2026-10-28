@@ -4,6 +4,7 @@ Build a production-ready, mobile-first web application named “skillSExhange”
 
 Purpose:
 skillSExhange is a peer-to-peer skill and opportunity exchange platform for students. Many students have useful skills but lack formal experience, jobs, mentors, or a way to collaborate. The platform lets students discover other students’ skills, post small jobs/projects, offer help, and exchange skills with one another.
+ URL: skillsexchange.lovable.app
 
 Tech stack:
 - React + TypeScript

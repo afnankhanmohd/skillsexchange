@@ -332,3 +332,182 @@ export async function resolveAvatarUrl(path: string | null): Promise<string | nu
     return null;
   }
 }
+
+// ===== Username search & public profiles =====
+
+export async function searchProfiles(term: string): Promise<PublicProfile[]> {
+  const query = term.trim().replace(/[%(),*]/g, "");
+  if (query.length < 2) return [];
+  const { data, error } = await supabase
+    .from("profiles")
+    .select(PROFILE_SELECT)
+    .or(`username.ilike.%${query}%,full_name.ilike.%${query}%`)
+    .limit(8);
+  if (error) throw error;
+  return (data ?? []) as unknown as PublicProfile[];
+}
+
+export async function fetchProfileByUsername(username: string) {
+  const clean = username.trim().toLowerCase();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select(PROFILE_SELECT)
+    .ilike("username", clean)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+// ===== Live sessions (calls + whiteboard) =====
+
+export type SessionRow = Tables<"skill_sessions"> & {
+  host: { id: string; full_name: string; avatar_url: string | null; username: string | null } | null;
+  guest: { id: string; full_name: string; avatar_url: string | null; username: string | null } | null;
+};
+
+export type StrokeRow = Tables<"session_strokes">;
+
+export async function fetchMySessions(userId: string): Promise<SessionRow[]> {
+  const { data, error } = await supabase
+    .from("skill_sessions")
+    .select(
+      `*,
+       host:profiles!skill_sessions_host_id_fkey(id, full_name, avatar_url, username),
+       guest:profiles!skill_sessions_guest_id_fkey(id, full_name, avatar_url, username)`,
+    )
+    .or(`host_id.eq.${userId},guest_id.eq.${userId}`)
+    .order("created_at", { ascending: false })
+    .limit(30);
+  if (error) throw error;
+  return (data ?? []) as unknown as SessionRow[];
+}
+
+export async function fetchOpenSessions(userId: string): Promise<SessionRow[]> {
+  const { data, error } = await supabase
+    .from("skill_sessions")
+    .select(
+      `*,
+       host:profiles!skill_sessions_host_id_fkey(id, full_name, avatar_url, username)`,
+    )
+    .eq("guest_id", null)
+    .neq("host_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(10);
+  if (error) throw error;
+  return (data ?? []) as unknown as SessionRow[];
+}
+
+export async function fetchSession(id: string): Promise<SessionRow | null> {
+  const { data, error } = await supabase
+    .from("skill_sessions")
+    .select(
+      `*,
+       host:profiles!skill_sessions_host_id_fkey(id, full_name, avatar_url, username),
+       guest:profiles!skill_sessions_guest_id_fkey(id, full_name, avatar_url, username)`,
+    )
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  return (data ?? null) as unknown as SessionRow | null;
+}
+
+export async function fetchSessionByCode(code: string): Promise<SessionRow | null> {
+  const clean = code.trim().toUpperCase();
+  if (!clean) return null;
+  const { data, error } = await supabase
+    .from("skill_sessions")
+    .select(
+      `*,
+       host:profiles!skill_sessions_host_id_fkey(id, full_name, avatar_url, username),
+       guest:profiles!skill_sessions_guest_id_fkey(id, full_name, avatar_url, username)`,
+    )
+    .eq("room_code", clean)
+    .maybeSingle();
+  if (error) throw error;
+  return (data ?? null) as unknown as SessionRow | null;
+}
+
+export async function createSession(hostId: string, title: string): Promise<SessionRow> {
+  const roomCode = Array.from(crypto.getRandomValues(new Uint8Array(6)))
+    .map((b) => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b % 32])
+    .join("");
+  const { data, error } = await supabase
+    .from("skill_sessions")
+    .insert({ host_id: hostId, title: title.trim() || "Skill exchange session", room_code: roomCode })
+    .select(
+      `*,
+       host:profiles!skill_sessions_host_id_fkey(id, full_name, avatar_url, username),
+       guest:profiles!skill_sessions_guest_id_fkey(id, full_name, avatar_url, username)`,
+    )
+    .single();
+  if (error) throw error;
+  return data as unknown as SessionRow;
+}
+
+/** Claims the open guest seat. Returns false when someone else already took it. */
+export async function claimGuestSeat(sessionId: string, userId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("skill_sessions")
+    .update({ guest_id: userId, status: "live" })
+    .eq("id", sessionId)
+    .eq("guest_id", null)
+    .neq("host_id", userId)
+    .select("id");
+  if (error) throw error;
+  return (data?.length ?? 0) > 0;
+}
+
+export async function endSession(sessionId: string) {
+  const { error } = await supabase
+    .from("skill_sessions")
+    .update({ status: "ended" })
+    .eq("id", sessionId);
+  if (error) throw error;
+}
+
+export async function fetchStrokes(sessionId: string, sheet: number): Promise<StrokeRow[]> {
+  const { data, error } = await supabase
+    .from("session_strokes")
+    .select("*")
+    .eq("session_id", sessionId)
+    .eq("sheet", sheet)
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as unknown as StrokeRow[];
+}
+
+export async function insertStroke(input: {
+  sessionId: string;
+  sheet: number;
+  kind: string;
+  payload: Record<string, unknown>;
+  createdBy: string;
+}): Promise<StrokeRow> {
+  const { data, error } = await supabase
+    .from("session_strokes")
+    .insert({
+      session_id: input.sessionId,
+      sheet: input.sheet,
+      kind: input.kind,
+      payload: input.payload,
+      created_by: input.createdBy,
+    })
+    .select("*")
+    .single();
+  if (error) throw error;
+  return data as unknown as StrokeRow;
+}
+
+export async function deleteStroke(id: string) {
+  const { error } = await supabase.from("session_strokes").delete().eq("id", id);
+  if (error) throw error;
+}
+
+export async function clearSheet(sessionId: string, sheet: number) {
+  const { error } = await supabase
+    .from("session_strokes")
+    .delete()
+    .eq("session_id", sessionId)
+    .eq("sheet", sheet);
+  if (error) throw error;
+}

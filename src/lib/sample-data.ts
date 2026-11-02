@@ -16,6 +16,8 @@ function person(id: string, full_name: string, college: string, location: string
     college,
     location,
     avatar_url: null,
+    username: null,
+    instagram_url: null,
     bio: `${full_name.split(" ")[0]} is a student collaborator on skillSExhange.`,
     availability: "5-10 hrs / week",
     portfolio_url: null,

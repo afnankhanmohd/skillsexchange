@@ -24,6 +24,7 @@ import { Route as AuthenticatedMatchRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as SkillsIndexRouteImport } from './routes/skills.index'
 import { Route as SkillsSkillIdRouteImport } from './routes/skills.$skillId'
+import { Route as StudentsUsernameRouteImport } from './routes/students.$username'
 import { Route as AuthenticatedSkillsNewRouteImport } from './routes/_authenticated/skills.new'
 import { Route as AuthenticatedSkillsSkillIdEditRouteImport } from './routes/_authenticated/skills.$skillId.edit'
 import { Route as AuthenticatedSkillsSkillIdInboxRouteImport } from './routes/_authenticated/skills.$skillId.inbox'
@@ -103,6 +104,11 @@ const SkillsSkillIdRoute = SkillsSkillIdRouteImport.update({
   path: '/skills/$skillId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StudentsUsernameRoute = StudentsUsernameRouteImport.update({
+  id: '/students/$username',
+  path: '/students/$username',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedSkillsNewRoute = AuthenticatedSkillsNewRouteImport.update({
   id: '/skills/new',
   path: '/skills/new',
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/match': typeof AuthenticatedMatchRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/skills/$skillId': typeof SkillsSkillIdRoute
+  '/students/$username': typeof StudentsUsernameRoute
   '/skills/': typeof SkillsIndexRoute
   '/skills/new': typeof AuthenticatedSkillsNewRoute
   '/skills/$skillId/edit': typeof AuthenticatedSkillsSkillIdEditRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByTo {
   '/match': typeof AuthenticatedMatchRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/skills/$skillId': typeof SkillsSkillIdRoute
+  '/students/$username': typeof StudentsUsernameRoute
   '/skills': typeof SkillsIndexRoute
   '/skills/new': typeof AuthenticatedSkillsNewRoute
   '/skills/$skillId/edit': typeof AuthenticatedSkillsSkillIdEditRoute
@@ -175,6 +183,7 @@ export interface FileRoutesById {
   '/_authenticated/match': typeof AuthenticatedMatchRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/skills/$skillId': typeof SkillsSkillIdRoute
+  '/students/$username': typeof StudentsUsernameRoute
   '/skills/': typeof SkillsIndexRoute
   '/_authenticated/skills/new': typeof AuthenticatedSkillsNewRoute
   '/_authenticated/skills/$skillId/edit': typeof AuthenticatedSkillsSkillIdEditRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/match'
     | '/profile'
     | '/skills/$skillId'
+    | '/students/$username'
     | '/skills/'
     | '/skills/new'
     | '/skills/$skillId/edit'
@@ -215,6 +225,7 @@ export interface FileRouteTypes {
     | '/match'
     | '/profile'
     | '/skills/$skillId'
+    | '/students/$username'
     | '/skills'
     | '/skills/new'
     | '/skills/$skillId/edit'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
     | '/_authenticated/match'
     | '/_authenticated/profile'
     | '/skills/$skillId'
+    | '/students/$username'
     | '/skills/'
     | '/_authenticated/skills/new'
     | '/_authenticated/skills/$skillId/edit'
@@ -251,6 +263,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   SkillsSkillIdRoute: typeof SkillsSkillIdRoute
+  StudentsUsernameRoute: typeof StudentsUsernameRoute
   SkillsIndexRoute: typeof SkillsIndexRoute
 }
 
@@ -361,6 +374,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SkillsSkillIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/students/$username': {
+      id: '/students/$username'
+      path: '/students/$username'
+      fullPath: '/students/$username'
+      preLoaderRoute: typeof StudentsUsernameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/skills/new': {
       id: '/_authenticated/skills/new'
       path: '/skills/new'
@@ -420,6 +440,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   SkillsSkillIdRoute: SkillsSkillIdRoute,
+  StudentsUsernameRoute: StudentsUsernameRoute,
   SkillsIndexRoute: SkillsIndexRoute,
 }
 export const routeTree = rootRouteImport

@@ -7,6 +7,7 @@ import {
   LogOut,
   Menu,
   Plus,
+  Radio,
   Shield,
   Sparkles,
   User,
@@ -16,6 +17,7 @@ import { useState } from "react";
 import logoAsset from "@/assets/logo.svg.asset.json";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserAvatar } from "@/components/UserAvatar";
+import { UsernameSearch } from "@/components/UsernameSearch";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -71,6 +73,12 @@ export function Navbar() {
             </li>
           ))}
         </ul>
+
+        {user ? (
+          <div className="hidden w-60 lg:block">
+            <UsernameSearch />
+          </div>
+        ) : null}
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
@@ -170,6 +178,18 @@ export function Navbar() {
                 ))}
                 {user ? (
                   <>
+                    <li className="px-1 pb-2">
+                      <UsernameSearch onNavigate={() => setOpen(false)} />
+                    </li>
+                    <li>
+                      <Link
+                        to="/sessions"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-secondary"
+                      >
+                        <Radio className="size-4" /> Live sessions
+                      </Link>
+                    </li>
                     <li>
                       <Link
                         to="/dashboard"

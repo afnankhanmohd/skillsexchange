@@ -72,6 +72,17 @@ export function Navbar() {
               </Link>
             </li>
           ))}
+          {user ? (
+            <li>
+              <Link
+                to="/sessions"
+                className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
+                activeProps={{ className: "bg-secondary text-secondary-foreground" }}
+              >
+                <Radio className="size-4" /> Live sessions
+              </Link>
+            </li>
+          ) : null}
         </ul>
 
         {user ? (

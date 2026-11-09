@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+## Feature structure
+- Keep sessions hub and room as authenticated file routes, with call signaling and whiteboard UI in focused components; participant-scoped database policies protect the shared session data.

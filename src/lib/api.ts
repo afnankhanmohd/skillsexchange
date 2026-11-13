@@ -1,8 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
+import type { Json, Tables } from "@/integrations/supabase/types";
 
 import { signPublicMedia } from "./media.functions";
-import type { Skill } from "./types";
+import type { PublicProfile, Skill } from "./types";
 
 const PROFILE_FIELDS =
   "id, username, full_name, college, location, avatar_url, bio, availability, portfolio_url, linkedin_url";
@@ -389,7 +389,7 @@ export async function fetchOpenSessions(userId: string): Promise<SessionRow[]> {
       `*,
        host:profiles!skill_sessions_host_id_fkey(id, full_name, avatar_url, username)`,
     )
-    .eq("guest_id", null)
+    .is("guest_id", null)
     .neq("host_id", userId)
     .order("created_at", { ascending: false })
     .limit(10);
@@ -450,7 +450,7 @@ export async function claimGuestSeat(sessionId: string, userId: string): Promise
     .from("skill_sessions")
     .update({ guest_id: userId, status: "live" })
     .eq("id", sessionId)
-    .eq("guest_id", null)
+    .is("guest_id", null)
     .neq("host_id", userId)
     .select("id");
   if (error) throw error;
@@ -489,7 +489,7 @@ export async function insertStroke(input: {
       session_id: input.sessionId,
       sheet: input.sheet,
       kind: input.kind,
-      payload: input.payload,
+      payload: input.payload as Json,
       created_by: input.createdBy,
     })
     .select("*")

@@ -15,6 +15,34 @@
       "when": 1793003426467,
       "tag": "0001_fix_username_generation",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794530907210,
+      "tag": "0002_add_session_call_signals",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794530945531,
+      "tag": "0003_persist_session_whiteboard_sheets",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794530999960,
+      "tag": "0004_share_active_whiteboard_sheet",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794531055896,
+      "tag": "0005_add_whiteboard_sheet_rpc",
+      "breakpoints": true
     }
   ]
 }

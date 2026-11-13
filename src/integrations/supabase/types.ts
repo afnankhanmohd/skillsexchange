@@ -352,6 +352,48 @@ export type Database = {
           },
         ]
       }
+      session_call_signals: {
+        Row: {
+          created_at: string
+          id: string
+          payload: Json
+          sender_id: string
+          session_id: string
+          signal_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          payload: Json
+          sender_id: string
+          session_id: string
+          signal_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          payload?: Json
+          sender_id?: string
+          session_id?: string
+          signal_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_call_signals_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_call_signals_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "skill_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       session_strokes: {
         Row: {
           created_at: string
@@ -447,34 +489,40 @@ export type Database = {
       }
       skill_sessions: {
         Row: {
+          active_sheet: number
           created_at: string
           guest_id: string | null
           host_id: string
           id: string
           room_code: string
           scheduled_at: string | null
+          sheet_count: number
           status: string
           title: string | null
           updated_at: string
         }
         Insert: {
+          active_sheet?: number
           created_at?: string
           guest_id?: string | null
           host_id: string
           id?: string
           room_code: string
           scheduled_at?: string | null
+          sheet_count?: number
           status?: string
           title?: string | null
           updated_at?: string
         }
         Update: {
+          active_sheet?: number
           created_at?: string
           guest_id?: string | null
           host_id?: string
           id?: string
           room_code?: string
           scheduled_at?: string | null
+          sheet_count?: number
           status?: string
           title?: string | null
           updated_at?: string
@@ -563,6 +611,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_session_sheet: { Args: { _session_id: string }; Returns: number }
       get_user_contact: {
         Args: { _user_id: string }
         Returns: {

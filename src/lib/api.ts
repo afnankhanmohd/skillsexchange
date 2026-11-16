@@ -391,6 +391,7 @@ export async function fetchOpenSessions(userId: string): Promise<SessionRow[]> {
     )
     .is("guest_id", null)
     .neq("host_id", userId)
+    .in("status", ["scheduled", "live"])
     .order("created_at", { ascending: false })
     .limit(10);
   if (error) throw error;
@@ -427,13 +428,22 @@ export async function fetchSessionByCode(code: string): Promise<SessionRow | nul
   return (data ?? null) as unknown as SessionRow | null;
 }
 
-export async function createSession(hostId: string, title: string): Promise<SessionRow> {
+export async function createSession(
+  hostId: string,
+  title: string,
+  scheduledAt?: string | null,
+): Promise<SessionRow> {
   const roomCode = Array.from(crypto.getRandomValues(new Uint8Array(6)))
     .map((b) => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b % 32])
     .join("");
   const { data, error } = await supabase
     .from("skill_sessions")
-    .insert({ host_id: hostId, title: title.trim() || "Skill exchange session", room_code: roomCode })
+    .insert({
+      host_id: hostId,
+      title: title.trim() || "Skill exchange session",
+      room_code: roomCode,
+      scheduled_at: scheduledAt || null,
+    })
     .select(
       `*,
        host:profiles!skill_sessions_host_id_fkey(id, full_name, avatar_url, username),
@@ -460,9 +470,23 @@ export async function claimGuestSeat(sessionId: string, userId: string): Promise
 export async function endSession(sessionId: string) {
   const { error } = await supabase
     .from("skill_sessions")
-    .update({ status: "ended" })
+    .update({ status: "completed" })
     .eq("id", sessionId);
   if (error) throw error;
+}
+
+export async function setActiveSessionSheet(sessionId: string, sheet: number) {
+  const { error } = await supabase
+    .from("skill_sessions")
+    .update({ active_sheet: sheet })
+    .eq("id", sessionId);
+  if (error) throw error;
+}
+
+export async function addSessionSheet(sessionId: string): Promise<number> {
+  const { data, error } = await supabase.rpc("add_session_sheet", { _session_id: sessionId });
+  if (error) throw error;
+  return data;
 }
 
 export async function fetchStrokes(sessionId: string, sheet: number): Promise<StrokeRow[]> {
@@ -486,6 +510,7 @@ export async function insertStroke(input: {
   const { data, error } = await supabase
     .from("session_strokes")
     .insert({
+      id: crypto.randomUUID(),
       session_id: input.sessionId,
       sheet: input.sheet,
       kind: input.kind,

@@ -354,6 +354,7 @@ export type Database = {
       }
       session_call_signals: {
         Row: {
+          call_id: string | null
           created_at: string
           id: string
           payload: Json
@@ -362,6 +363,7 @@ export type Database = {
           signal_type: string
         }
         Insert: {
+          call_id?: string | null
           created_at?: string
           id?: string
           payload: Json
@@ -370,6 +372,7 @@ export type Database = {
           signal_type: string
         }
         Update: {
+          call_id?: string | null
           created_at?: string
           id?: string
           payload?: Json
@@ -489,6 +492,7 @@ export type Database = {
       }
       skill_sessions: {
         Row: {
+          active_call_id: string | null
           active_sheet: number
           created_at: string
           guest_id: string | null
@@ -502,6 +506,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          active_call_id?: string | null
           active_sheet?: number
           created_at?: string
           guest_id?: string | null
@@ -515,6 +520,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          active_call_id?: string | null
           active_sheet?: number
           created_at?: string
           guest_id?: string | null

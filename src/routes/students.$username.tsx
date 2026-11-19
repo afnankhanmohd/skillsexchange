@@ -192,7 +192,10 @@ function PublicProfilePage() {
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <ContactDetails userId={profile.id} name={profile.full_name || "this student"} />
           <Button asChild className="sm:self-start">
-            <Link to="/sessions">
+            <Link
+              to="/sessions"
+              search={{ guestId: profile.id, guestName: profile.full_name || "Student" }}
+            >
               <UserRound className="size-4" /> Start a live session
             </Link>
           </Button>

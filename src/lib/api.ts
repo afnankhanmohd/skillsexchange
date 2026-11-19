@@ -428,10 +428,26 @@ export async function fetchSessionByCode(code: string): Promise<SessionRow | nul
   return (data ?? null) as unknown as SessionRow | null;
 }
 
+export async function fetchSessionByCodeForParticipant(code: string, userId: string): Promise<SessionRow | null> {
+  const clean = code.trim().toUpperCase();
+  if (!clean) return null;
+  const { data, error } = await supabase
+    .from("skill_sessions")
+    .select(
+      `*, host:profiles!skill_sessions_host_id_fkey(id, full_name, avatar_url, username), guest:profiles!skill_sessions_guest_id_fkey(id, full_name, avatar_url, username)`,
+    )
+    .eq("room_code", clean)
+    .or(`host_id.eq.${userId},guest_id.eq.${userId}`)
+    .maybeSingle();
+  if (error) throw error;
+  return (data ?? null) as unknown as SessionRow | null;
+}
+
 export async function createSession(
   hostId: string,
   title: string,
   scheduledAt?: string | null,
+  guestId?: string | null,
 ): Promise<SessionRow> {
   const roomCode = Array.from(crypto.getRandomValues(new Uint8Array(6)))
     .map((b) => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b % 32])
@@ -443,6 +459,7 @@ export async function createSession(
       title: title.trim() || "Skill exchange session",
       room_code: roomCode,
       scheduled_at: scheduledAt || null,
+      guest_id: guestId || null,
     })
     .select(
       `*,
@@ -460,11 +477,57 @@ export async function claimGuestSeat(sessionId: string, userId: string): Promise
     .from("skill_sessions")
     .update({ guest_id: userId, status: "live" })
     .eq("id", sessionId)
+    .in("status", ["scheduled", "live"])
     .is("guest_id", null)
     .neq("host_id", userId)
+    .in("status", ["scheduled", "live"])
     .select("id");
   if (error) throw error;
   return (data?.length ?? 0) > 0;
+}
+
+export async function inviteGuest(sessionId: string, guestId: string): Promise<void> {
+  const { error } = await supabase
+    .from("skill_sessions")
+    .update({ guest_id: guestId })
+    .eq("id", sessionId)
+    .eq("host_id", guestId === "" ? "" : (await supabase.auth.getUser()).data.user?.id ?? "")
+    .is("guest_id", null);
+  if (error) throw error;
+}
+
+export async function setSessionActiveCall(sessionId: string, callId: string | null): Promise<void> {
+  const { error } = await supabase.from("skill_sessions").update({ active_call_id: callId }).eq("id", sessionId);
+  if (error) throw error;
+}
+
+export async function fetchCallSignals(sessionId: string, callId: string, after: string) {
+  const { data, error } = await supabase
+    .from("session_call_signals")
+    .select("id, sender_id, signal_type, payload, created_at")
+    .eq("session_id", sessionId)
+    .eq("call_id", callId)
+    .gt("created_at", after)
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function insertCallSignal(input: {
+  sessionId: string;
+  callId: string;
+  senderId: string;
+  signalType: "offer" | "answer" | "ice-candidate";
+  payload: Json;
+}) {
+  const { error } = await supabase.from("session_call_signals").insert({
+    session_id: input.sessionId,
+    call_id: input.callId,
+    sender_id: input.senderId,
+    signal_type: input.signalType,
+    payload: input.payload,
+  });
+  if (error) throw error;
 }
 
 export async function endSession(sessionId: string) {

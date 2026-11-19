@@ -54,12 +54,14 @@ export const Route = createFileRoute("/_authenticated/profile")({
 
 const profileSchema = z.object({
   full_name: z.string().trim().min(2, "Enter your full name").max(80),
+  username: z.string().trim().toLowerCase().regex(/^[a-z0-9_]{3,20}$/, "Use 3–20 letters, numbers, or underscores"),
   college: z.string().trim().max(120).optional(),
   location: z.string().trim().max(120).optional(),
   bio: z.string().trim().max(600).optional(),
   availability: z.string().trim().max(120).optional(),
   portfolio_url: z.union([z.string().trim().url("Enter a valid URL"), z.literal("")]),
   linkedin_url: z.union([z.string().trim().url("Enter a valid URL"), z.literal("")]),
+  instagram_url: z.union([z.string().trim().url("Enter a valid Instagram URL"), z.literal("")]),
   email: z.union([z.string().trim().email("Enter a valid email"), z.literal("")]),
   phone: z.union([
     z
@@ -101,12 +103,14 @@ function EditProfilePage() {
         .from("profiles")
         .update({
           full_name: values.full_name,
+          username: values.username,
           college: values.college || null,
           location: values.location || null,
           bio: values.bio || null,
           availability: values.availability || null,
           portfolio_url: values.portfolio_url || null,
           linkedin_url: values.linkedin_url || null,
+          instagram_url: values.instagram_url || null,
           email: values.email || null,
           phone: values.phone || null,
           contact_visible: values.contact_visible,
@@ -130,12 +134,14 @@ function EditProfilePage() {
     const form = new FormData(event.currentTarget);
     const parsed = profileSchema.safeParse({
       full_name: form.get("full_name") ?? "",
+      username: form.get("username") ?? "",
       college: form.get("college") ?? "",
       location: form.get("location") ?? "",
       bio: form.get("bio") ?? "",
       availability: form.get("availability") ?? "",
       portfolio_url: form.get("portfolio_url") ?? "",
       linkedin_url: form.get("linkedin_url") ?? "",
+      instagram_url: form.get("instagram_url") ?? "",
       email: form.get("email") ?? "",
       phone: joinPhone(countryCode, localNumber),
       contact_visible: contactVisible,
@@ -247,6 +253,11 @@ function EditProfilePage() {
             <p className="text-xs text-destructive">{errors["full_name"]}</p>
           ) : null}
         </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="username">Username</Label>
+          <Input id="username" name="username" defaultValue={profile?.username ?? ""} autoCapitalize="none" autoCorrect="off" />
+          {errors["username"] ? <p className="text-xs text-destructive">{errors["username"]}</p> : null}
+        </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="college">College / university</Label>
@@ -255,6 +266,17 @@ function EditProfilePage() {
           <div className="space-y-1.5">
             <Label htmlFor="location">Location</Label>
             <Input id="location" name="location" defaultValue={profile?.location ?? ""} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="instagram_url">Instagram profile URL</Label>
+            <Input
+              id="instagram_url"
+              name="instagram_url"
+              type="url"
+              defaultValue={profile?.instagram_url ?? ""}
+              placeholder="https://instagram.com/yourname"
+            />
+            {errors["instagram_url"] ? <p className="text-xs text-destructive">{errors["instagram_url"]}</p> : null}
           </div>
         </div>
         <div className="space-y-1.5">

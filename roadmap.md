@@ -1,8 +1,8 @@
 # Roadmap
 
-- [ ] Username search → public profile → create/join live session
-- [ ] Live room with participant-scoped WebRTC signaling and multi-sheet whiteboard
-- [ ] Verify search → profile → session → whiteboard end to end in the browser
+- [x] Finish username search → profile → invite/schedule/join live session flow
+- [x] Finish call lifecycle, participant-safe room access, and shared multi-sheet whiteboard
+- [ ] Verify signed-in session creation, joining, calling, and whiteboard updates in the browser
 - [ ] Public job directory and detail pages with share buttons (deferred from earlier request)
 - [x] Listing detail page: description + photos + send-inquiry button
 - [x] Inquiries appear in the listing's own inbox (owner view on the listing page)
